@@ -9,4 +9,6 @@ The python code consists of a couple of scripts to generate the SVG needed for r
 
 The www/ folder contains a working example. As it is loading .js and .json files it might be necessary to serve the files from a real server. When everything works it should look something like <a href="http://letterror.com/dev/public/index.html">this</a>.
 
+The www code depends on jQuery, but probably not a very specific version, and snap.js, a very handy library for manipulating SVG data. All the vector data comes from json, so in theory it might be possible to rewrite all this without snap.js. 
+
 Ideas and code very much in debt to Jeremie Hornus, Nina Stössinger, Andrew Johnson, Onur Yazıcıgil, and Nick Sherman. 
