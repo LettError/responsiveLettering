@@ -11,7 +11,7 @@ The www/ folder contains a working example. As it is loading .js and .json files
 
 The www code depends on jQuery, but probably not a very specific version, and snap.js, a very handy library for manipulating SVG data. All the vector data comes from json, so in theory it might be possible to rewrite all this without snap.js. 
 
-Ideas and code very much in debt to Jeremie Hornus, Nina Stössinger, Andrew Johnson, Onur Yazıcıgil, and Nick Sherman. 
+Ideas and code very much in debt to <a href="http://www.typosansplomb.com/ResponsiveInterpolation/" target="_new">Jeremie Hornus</a>, <a href="http://typologic.nl/news/live-font-interpolation-with-svg/" target="_new">Nina Stössinger</a>, <a href="http://alistapart.com/article/live-font-interpolation-on-the-web" target="_new">Andrew Johnson</a>, <a href="http://onuryazicigil.com" target="_new">Onur Yazıcıgil</a>, and <a href="http://nicksherman.com" target="_new">Nick Sherman</a>.
 
 ## License
 
