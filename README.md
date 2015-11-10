@@ -1,5 +1,7 @@
 # responsiveLettering
 
+![Responsive Lettering](responsiveLettering_screen.jpg)
+
 Responsive lettering: scalable, interpolating vector shapes that can make themselves fit in a range of rectangles.
 <a href="http://letterror.com/dev/mathshapes/">More examples here.</a>
 
