@@ -1,0 +1,59 @@
+<html>
+
+<head>
+	<title>LettError MathShape Preview</title>
+	<meta charset="UTF-8">
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/snap.svg/0.3.0/snap.svg-min.js"></script>
+	<script>//mathshape</script>
+	<script>var data=//__jsondata;</script>
+	<style>/*styles*/</style>
+
+</head>
+
+<body>
+	<div class="svgloader"><!--svgobjects--></div>
+
+	<div id="svgcontainer">
+		<svg id="mathShape" title="test"
+			viewBox="0 0 1000 1000"
+			enable-background="0 0 1000 1000"
+			height="100%"
+			xmlns="http://www.w3.org/2000/svg"@
+			xmlns:xlink="http://www.w3.org/1999/xlink"
+			xml:space="preserve"
+			style="fill-rule:non-zero;clip-rule:nonzero;stroke-linejoin:round;stroke-miterlimit:1.41421;">
+		</svg>
+	</div>
+
+	<script>
+		var breathShape = 0.3;
+		var myMathShape = new MathShape("#mathShape", "placeholder_ms");
+		myMathShape.loadLocal();
+		//myMathShape.loadFromWeb();
+		// set fill colors
+		myMathShape.setAlignment("center");
+		myMathShape.setFill(/*testShapeFillColor*/);
+
+		// recalculate the image factors when resizing
+		$(window).resize(function() {
+			myMathShape.calculateFactors();
+		});
+
+		// make the images breathe.
+		// entirely optional but definitely entertaining
+		setInterval(function () { 
+
+			breathShape += 0.04;
+			myMathShape.breathe(0.5*Math.sin(breathShape*Math.PI)+0.5)
+		}, 50);
+	</script>
+
+	<div class="column"><p>
+	<!--notes-->
+	</p></div>
+
+
+
+</body>
+</html>
