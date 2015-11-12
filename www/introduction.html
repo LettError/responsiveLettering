@@ -106,7 +106,7 @@ The resulting SVG image then has exactly the right height / width proportions. I
 
 <h2>Notes</h2>
 <ul>
-<li>This system is built to make shapes fit a particular, dynamic, rectangular. If you just want to scale and fit an SVG image, you don't need this. There many projects that can blend, morph or animate SVG shapes. The value of this particular package is that it knows how to use math to respond to the geometry of the box the shape needs to be in.</li>
+<li>This system is built to make shapes fit a particular, dynamic, rectangular container. If you just want to scale and fit an SVG image, you don't need this. There many projects that can blend, morph or animate SVG shapes. The value of this particular package is that it knows how to use math to respond to the geometry of the box the shape needs to be in.</li>
 <li>When the proportions of the parent element are too tall or too wide for the mathShape to match, it will render the shape that is closest to what is needed and then align. In the <a href="index.html">example implementation</a> you can see that the S aligns to the right after it has reached its maximum width. 
 </li>
 <li>Currently mathShapes needs 4 masters. If you just want to interpolate width, it might be better to write a new method for mathShape</li>
