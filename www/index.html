@@ -28,25 +28,17 @@
 			color: #00ffa7;
 			margin: 0.5em;
 		}
-
-		#svgcontainer{
-			padding: 0;
-			margin:0;
-			height: 100vh;
-			background-color: none;
-			margin: auto;
-		}
 		
 		@media screen {
 			/*two boxes next to each other*/
-			#svgcontainer1{
+			#svgcontainer{
 				position: absolute;
 				margin-top:0;
 				margin-left:0vw;
 				height: 100vh;
 				width: 80vw;
 			}
-			#svgcontainer2{
+			#textcontainer{
 				position: absolute;
 				margin-top:0;
 				margin-left:80vw;
@@ -56,14 +48,14 @@
 			}
 		}
 		@media screen and (max-aspect-ratio: 4/3){
-			#svgcontainer1{
+			#svgcontainer{
 				position: absolute;
 				margin-top:0;
 				margin-left:0;
 				height: 90vh;
 				width: 100vw;
 			}
-			#svgcontainer2{
+			#textcontainer{
 				position: absolute;
 				margin-top:90vh;
 				margin-left:0vw;
@@ -79,7 +71,7 @@
 
 
 <body>
-	<div id="svgcontainer1">
+	<div id="svgcontainer">
 		<svg id="mathShape1" title="test"
 			viewBox="0 0 1000 1000"
 			enable-background="0 0 1000 1000"
@@ -89,23 +81,11 @@
 			xml:space="preserve"
 			style="fill-rule:non-zero;clip-rule:nonzero;stroke-linejoin:round;stroke-miterlimit:1.41421;">
 		</svg>
-
-		<svg id="mathShape2" title="test"
-			viewBox="0 0 1000 1000"
-			enable-background="0 0 1000 1000"
-			height="100%"
-			xmlns="http://www.w3.org/2000/svg"@
-			xmlns:xlink="http://www.w3.org/1999/xlink"
-			xml:space="preserve"
-			style="fill-rule:non-zero;clip-rule:nonzero;stroke-linejoin:round;stroke-miterlimit:1.41421;">
-		</svg>
-
 	</div>
 
 
 
-	<div id="svgcontainer2">
-
+	<div id="textcontainer">
 			<p class="thanks">
 			<b>Responsive lettering</b>: scalable, interpolating vector shapes that can make themselves fit in a range of rectangles. <a href="http://letterror.com/dev/mathshapes/" target="_new">More examples here.</a>
 
@@ -115,37 +95,33 @@ Ideas and code very much in debt to <a href="http://www.typosansplomb.com/Respon
 			<br>
 			Depends on <a href="http://snapsvg.io" target="_new">Snap.svg</a> and <a href="https://jquery.com">jQuery</a>. November 2015.
 			</p>
-			<p id="mathShapeReporter"></p>
 	</div>
-
 
 	<script>
 		// Note to builders: 
 		// This initialises the mathshape object.
 		// This can only happen **after** it has been described in html. 
-		var breathShape1 = 0;
-	
-		var availableColors = ['white', 'gray', 'red', 'orange'];
-		
+		var breathShape = 0;
+			
 		// MathShape takes 2 argument. 
-		// 1: "#mathShape1", this is the id of the svg element we're aiming for.
+		// 1: "#mathShape", this is the id of the svg element we're aiming for.
 		// 2: "example_ms", the name of the directory that has the mathshape data in it.
-		var myMathShape1 = new MathShape("#mathShape1", "example_ms");
+		var myMathShape = new MathShape("#mathShape1", "example_ms");
 
-		myMathShape1.loadFromWeb();
-		myMathShape1.setFill("#acff00");
-		myMathShape1.setAlignment("right");
+		myMathShape.loadFromWeb();
+		myMathShape.setFill("#acff00");
+		myMathShape.setAlignment("right");
 
 		// recalculate the image factors when resizing
 		$(window).resize(function() {
-			myMathShape1.calculateFactors();
+			myMathShape.calculateFactors();
 		});
 
 		// make the images breathe.
 		// entirely optional but definitely entertaining
 		setInterval(function () { 
-		breathShape1 += 0.04;
-		myMathShape1.breathe(0.5*Math.sin(breathShape1*Math.PI)+0.5)
+		breathShape += 0.04;
+		myMathShape.breathe(0.5*Math.sin(breathShape*Math.PI)+0.5)
 		}, 50);
 	</script>
 

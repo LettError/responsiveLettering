@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+	<script src="snap.svg.js"></script>
+	<script src="mathShape.js"></script>
+	<script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
+
+	<title>Responsive Lettering, introduction</title>
+
+<style>
+	@import url(https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,700);
+body{
+	background-color: white;
+	color: black;
+	font-size: 100%;
+	margin-left: 2em;
+	margin-right: 2em;
+	font-family: 'Source Sans Pro', sans-serif;
+}
+p{
+
+}
+pre{
+	background-color: lightgray;
+	padding: 10pt;
+}
+#example1{
+	height: 500px;
+}
+</style>
+</head>
+
+<body>
+<h1>Responsive Lettering</h1>
+
+<p>
+This document explains the ideas in the Responsive Lettering package. Version 1, November 2015. In this package there are two main components:
+<ul>
+	<li>drawing shapes and generating the SVGs</li>
+	<li>using these SVGs to create "mathShapes" in a webpage</li>
+</ul>
+This package helps in the design and preparation of four SVG files, which, with the help of some javascript, can scale and interpolate to precisely match the height and width of a container. It is even possible to prepare these drawings so that there is a second axis of freedom which can be operated independently from the box geometry. This makes it possible to have resolution independent, fast and completely responsive logos, letters, words or shapes on a webpage.
+</p>
+<h2>SVG</h2>
+<p>
+There are many tools that can create SVG files. In order to be able to interpolate them though, we need to prepare the files with some care. The code that will render the shapes in the page needs to be fast, so it can't do too much clever thinking about the shapes. It expects each SVG master to have the same number of points and the same number of instructions. The problem we've seen is that SVG is optimised, so if a line is horizontal, the y value is ignored. This is fine for drawing, but tricky for math. What if one of the masters has a diagonal line but the other just has a horizontal. One file would be a number short, the number of coordinates would not match. This is what happens if you draw the masters in Illustrator: each SVG will be completely valid, but structurally too different from the others to be able to do any math with them.
+</p>
+<p>
+By using the included RoboFontExtension you can draw the different masters as separate glyphs and then export them the right way. The extension also offers a small preview window that can be resized. You can also use the extension to create a new template UFO that has the right glyphnames and sizes. Your drawings do not need to fit these default sizes, but you must make sure both narrows and both wides are the same. The extension will tell you something is wrong when exporting.
+</p>
+
+<h2>Files</h2>
+<p>
+<img src="img/mathShape.jpg" height="435" width="471">
+<br>
+When you export from RoboFont you will see a folder with 4 .svg files and 1 .json file. If you create these files with another tool or script, these are the files you need to make. The .json file contains a couple of names and some proportions:
+<pre>
+{	"files": ["demo_ms/narrow-thin.svg",
+	"demo_ms/wide-thin.svg",
+	"demo_ms/narrow-bold.svg",
+	"demo_ms/wide-bold.svg"],
+	"extrapolatemin": 0,
+	"designspace": "twobytwo",
+	"sizebounds": [[500, 1000], [2500, 1000]],
+	"extrapolatemax": 1.25
+}
+</pre>
+<ul>
+<li><b>files</b>: a list of the SVG filenames that are expected to be in this particular order:
+<ol><li>narrow thin</li>
+<li>wide thin</li>
+<li>narrow bold</li>
+<li>wide bold</li>
+</ol></li>
+<li><b>extrapolatemin</b>: the minimum extrpolation factor for the width. If you do not want the shapes to go narrower than your narrowest drawings, set this to 0. If you want to allow for instance 5% extrapolation, set this to -0.05.</li>
+<li><b>extrapolatemax</b>: the maximum extrapolation factor for the width. If you do not want the shapes to go wider than your widest, set this to 1. If you want to allow for instance 5% extrapolation, set this to 1.05.</li>
+<li><b>designspace</b>: currently only the two-by-two is supported but let's include it so later on it will be easier to add other designspaces.</li>
+<li><b>sizebounds</b>: the [xMin, yMin], [xMax, yMax] bounds of the narrow and the wide images. Why only 2? <b>Both narrow files need the same width. Both wide files need the same width.</b> These values are used in the calculation of the interpolation factors. If the values do not correspond with the actual geometry of your shapes odd things can happen.</li>
+</ul>
+<br>
+Together these SVG files and the files.json form the data our mathShape needs. Why, you may ask, are the bounds provided separately, surely these numbers could be extracted from the SVG files? No: the bounding box of the shape does not have to correspond with the target rectangle. You might want some margins. Getting the values up front is also faster.
+</p>
+
+<h2>Drawing, generating</h2>
+
+<p>
+<img src="img/example.jpg" width="100%">
+These are the shapes that are added to the template by the extension. 
+
+<br>
+<img src="img/peace.jpg" width="100%">
+Here each word is a single glyph. You see the wides are not as wide as the template. It really depends on the shapes you're trying to make. 
+
+<br>
+All four masters must share the same point structure (currently, for the two-by-two designspace). You can use overlaps though! By making the width differential bigger you can make the shape respond to a wider range of rectangles. It helps to have an idea of how the shape will be used in the page.
+</p>
+<p>
+</p>
+
+<h2>Deploy</h2>
+<p>
+Put the folder with all the SVGs and json in a place where your webserver can find them. Look at the code of the <a href="index.html">example implementation.</a>.
+The mathShape object finds the dimensions of the parent element so it knows the proportions of the required drawing. Then it can calculate the (single!) interpolation factor for the width axis. This produces two new masters which can be interpolated with the secondary interpolation factor. A couple of the examples use weight variations and indeed, the glyph names in the template fonts use weight terminology. But this axis can be anything you want. 
+The resulting SVG image then has exactly the right height / width proportions. It will scale perfectly to fit inside the parent element. 
+
+<h2>Notes</h2>
+<ul>
+<li>This system is built to make shapes fit a particular, dynamic, rectangular. If you just want to scale and fit an SVG image, you don't need this. There many projects that can blend, morph or animate SVG shapes. The value of this particular package is that it knows how to use math to respond to the geometry of the box the shape needs to be in.</li>
+<li>When the proportions of the parent element are too tall or too wide for the mathShape to match, it will render the shape that is closest to what is needed and then align. In the <a href="index.html">example implementation</a> you can see that the S aligns to the right after it has reached its maximum width. 
+</li>
+<li>Currently mathShapes needs 4 masters. If you just want to interpolate width, it might be better to write a new method for mathShape</li>
+<li>Browser support depends very much on whether snap.js is supported. Likely won't work in older browsers, did not test, do not really care.</li>
+<li>Obviously not intended for larger amounts of text.</li>
+<li>Wait, drawing those extreme weight and width variations is actually much harder than it looks! Yes. It's called "typedesign". 
+</ul>
+</p>
+
+
+</body>
+</html>
