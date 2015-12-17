@@ -16,7 +16,7 @@ import tempfile
 class ExportUI(object):
     masterNames = ['narrow-thin', 'wide-thin', 'narrow-bold', 'wide-bold']
     def __init__(self):
-        self.color = "#FF0000"
+        self.color = "#FFF"
         self.w = vanilla.Window((500, 600), "MathShape Exporter", minSize=(300,200))
         self.w.preview = HTMLView((0,0,-0, -200))
         self.w.exportButton = vanilla.Button((-150, -30, -10, 20), "Export", callback=self.cbExport)
@@ -30,9 +30,10 @@ class ExportUI(object):
         ]
         self.w.l = vanilla.List((0,-200,-0,-60), self.wrapGlyphs(), columnDescriptions=columnDescriptions)
         self.w.t = vanilla.TextBox((40,-53,-5,20), "FontName", sizeStyle="small")
-        self.w.clr = vanilla.ColorWell((10,-55, 20, 20), callback=self.cbColor, color=NSColor.redColor())
+        self.w.clr = vanilla.ColorWell((10,-55, 20, 20), callback=self.cbColor, color=NSColor.whiteColor())
         self.update()
         self.w.open()
+        self.cbMakePreview(None)
     
     def update(self):
         # when starting, or when there is an update?
@@ -41,16 +42,14 @@ class ExportUI(object):
         self.w.l.set(glyphs)
         folderName = self.proposeFilename(f)
         self.w.t.set(folderName)
-        #self.cbMakePreview(None)
     
     def validate(self, font):
         # can we generate this one?
         # test.
         # do we have all the right names:
-        print 'validating'
         for name in self.masterNames:
             if name not in font:
-                print 'msiing glyph', name
+                print 'missing glyph', name
                 self.w.t.set("Glyph %s missing."%name)
                 return False
         return True
@@ -91,7 +90,6 @@ class ExportUI(object):
         # export the mathshape
         root, tags, metaData = exportCurrentFont(f, self.masterNames, proposedName)
         resourcesPath = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "Resources")
-        #print "resourcesPath", resourcesPath, os.path.exists(resourcesPath)
         outputPath = os.path.join(root, "preview_%s.html"%proposedName)
         pm = PageMaker(resourcesPath, os.path.join(root, proposedName), outputPath, fillColor=self.color)
         self.w.preview.setHTMLPath(outputPath)
@@ -105,9 +103,7 @@ class ExportUI(object):
         proposedName = self.proposeFilename(f)
         # export the mathshape
         root, tags, metaData = exportCurrentFont(f, self.masterNames, proposedName)
-        #/Users/erik/Library/Application Support/RoboFont/plugins/LTRMathShape.roboFontExt/lib/cmd_exportCurrentFont.py
         resourcesPath = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "Resources")
-        #print "resourcesPath", resourcesPath, os.path.exists(resourcesPath)
         outputPath = os.path.join(root, "test_%s.html"%proposedName)
         pm = PageMaker(resourcesPath, os.path.join(root, proposedName), outputPath, fillColor=self.color)
         self.w.close()
@@ -122,8 +118,6 @@ def exportCurrentFont(exportFont, masterNames, folderName, saveFiles=True):
     tags = []       # the svg tags as they are produced
     exportFont.save()
     path = exportFont.path
-    #exportFont.close()
-    #exportFont = OpenFont(path)
     checkBoundsLayer = False
     if 'bounds' in exportFont.layerOrder:
         checkBoundsLayer = True
