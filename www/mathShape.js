@@ -21,11 +21,6 @@
 		function roundToTwo(num) {    
 			return +(Math.round(num + "e+2")  + "e-2");
 		}
-		function randomIntFromInterval(min,max)
-		{
-		    return Math.floor(Math.random()*(max-min+1)+min);
-		}
-
 		function value(v){
 			return "<span class='value'>"+v+"</span>"
 		}
@@ -95,20 +90,6 @@ MathShape.prototype.loadFromWeb = function(){
 		$(this.elementId).attr("height", "100%")
 		self.breathe(0);
 	});
-}
-MathShape.prototype.updateReporter = function(){
-	// if we happen to have an element named mathShapeReporter
-	// add some telemetry to this element so we can see how we are doing. 
-	// This needs to be cleaned up:
-	// - can not rely on the elements present in the target page.
-	// - make our own elements should be better
-	// - also: some reporting takes longer.
-	if(this.masterData!=undefined){
-		$('#mathShapeMasterBounds').html("bounds "+value(this.masterBounds));
-		$('#mathShapeName').html(value(this.root) + " pts "+value(this.masterData[0].length));
-	}
-	$('#mathShapeExtrapolate').html("min "+value(this.extrapolateMin)+", max "+value(this.extrapolateMax));
-	$('#mathShapeRatio').html("ratio "+value(roundToTwo(this.boundsRatio))+"<br>parent "+value(roundToTwo(this.parentRatio)));
 }
 MathShape.prototype.breathe = function(factor){
 	//  redraw with the current size
@@ -204,8 +185,6 @@ MathShape.prototype.calculateShapeTwoByTwo = function(){
 				};
 				break;
 		};
-		// // show the calculated instruction on the page
-		// // show the contributing masters on the page
 		resultPath.push(newCommand);
 	};
 	this.snap.clear()
@@ -275,9 +254,9 @@ MathShape.prototype.onLoaded = function(data){
 };
 MathShape.prototype.calculateFactors = function(){
 	//	The svg image height is set to 100%.
-	//	Therefor yhe window will scale the image to the right height.
+	//	Therefor the window will scale the image to the right height.
 	//	That means that we only have to calculate the appropriate width to fill the box.
-	//	Take the width / height ration from the parent, then calculate
+	//	Take the width / height ratio from the parent, then calculate
 	//	the factors needed for the image to get the same ratio. 
 	var width = $( this.elementId ).parent().outerWidth();
 	var height = $( this.elementId ).parent().outerHeight();
