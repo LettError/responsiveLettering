@@ -1,7 +1,7 @@
 
 
 
-// edits 20151110
+// edits 20160115
 
 // mathImage object
 // takes 4 names of svg files

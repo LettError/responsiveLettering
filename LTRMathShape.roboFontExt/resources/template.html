@@ -7,7 +7,12 @@
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/snap.svg/0.3.0/snap.svg-min.js"></script>
 	<script>//mathshape</script>
 	<script>var data=//__jsondata;</script>
-	<style>/*styles*/</style>
+	<style>/*styles*/
+
+		body{
+			background-color: /*bgColor*/;
+		}
+	</style>
 
 </head>
 
@@ -33,7 +38,7 @@
 		//myMathShape.loadFromWeb();
 		// set fill colors
 		myMathShape.setAlignment("center");
-		myMathShape.setFill(/*testShapeFillColor*/);
+		myMathShape.setFill(/*shapeFillColor*/);
 
 		// recalculate the image factors when resizing
 		$(window).resize(function() {
