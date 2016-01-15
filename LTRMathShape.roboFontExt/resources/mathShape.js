@@ -1,7 +1,7 @@
 
 
 
-// edits 20150529
+// edits 20160115
 
 // mathImage object
 // takes 4 names of svg files
@@ -13,22 +13,21 @@
 
 // With thanks to Jérémie Hornus, Nina Stössinger, Nick Sherman, Andrew Johnson, Petr van Blokland and Gerrit Noordzij.
 
+// For the time being, for practical reasons, this is (c) erik van blokland 2015
+// Assume this code is a proof of concept and a nice demo. No guarantee for how this code
+// holds up under greater loads, heavy files, production or otherwise demanding environments. 
+
 		// tools
 		function roundToTwo(num) {    
 			return +(Math.round(num + "e+2")  + "e-2");
 		}
-		function randomIntFromInterval(min,max)
-		{
-		    return Math.floor(Math.random()*(max-min+1)+min);
-		}
-
 		function value(v){
 			return "<span class='value'>"+v+"</span>"
 		}
 
 // mathshape class
 function MathShape(elementId, miURL){
-	this.shapeVersion = "0.3";
+	this.shapeVersion = "0.4";
 	this.elementId = elementId;
 	this.reporterElementId = "#mathShapeReporter";
 	this.masterPaths = [];
@@ -73,10 +72,8 @@ MathShape.prototype.loadFromWeb = function(){
 	this.snap = Snap(this.elementId);
 	var self = this;	// http://stackoverflow.com/questions/2325866/assigning-scope-amongst-jquery-getjson-and-a-js-class
 	var miPath = this.root+"/files.json";
-	// console.log("miPath", miPath);
 
 	jQuery.getJSON(miPath, {}, function(data){
-		// console.log(typeof data['sizebounds'][0][0]);		//[[247, 751], [3000,750]]);
 		self.masterPaths = data['files'];
 		self.masterBounds = data['sizebounds'];
 		self.extrapolateMin = data['extrapolatemin'];
@@ -90,31 +87,9 @@ MathShape.prototype.loadFromWeb = function(){
 	});
 
 	$(this.elementId).click(function callbackClick(data){
-		console.log("click!", self);
+		$(this.elementId).attr("height", "100%")
 		self.breathe(0);
 	});
-	// console.log(this+" init masterData", this.masterData);
-	// console.log("parent size", this.getParentSize());
-	// this.makeReporter();
-}
-MathShape.prototype.updateReporter = function(){
-	// if we happen to have an element named mathShapeReporter
-	// add some telemetry to this element so we can see how we are doing. 
-	// This needs to be cleaned up:
-	// - can not rely on the elements present in the target page.
-	// - make our own elements should be better
-	// - also: some reporting takes longer.
-	if(this.masterData!=undefined){
-		$('#mathShapeMasterBounds').html("bounds "+value(this.masterBounds));
-		$('#mathShapeName').html(value(this.root) + " pts "+value(this.masterData[0].length));
-	}
-	$('#mathShapeExtrapolate').html("min "+value(this.extrapolateMin)+", max "+value(this.extrapolateMax));
-	$('#mathShapeRatio').html("ratio "+value(roundToTwo(this.boundsRatio))+"<br>parent "+value(roundToTwo(this.parentRatio)));
-	
-
-	
-	// $('#mathShapeSizeFactor').text("size factor "+this.sizeFactor);
-	// $('#mathShapePlayFactor').text("play factor "+this.playFactor);
 }
 MathShape.prototype.breathe = function(factor){
 	//  redraw with the current size
@@ -123,9 +98,6 @@ MathShape.prototype.breathe = function(factor){
 	if(this.svgLoaded==true){
 		this.calculateFactors();
 	}
-	// else {
-	// 	console.log("breathe, but not fully loaded yet");
-	// }
 }
 MathShape.prototype.setFill = function(color, opacity){
 	// set the preferred color and opacity
@@ -152,9 +124,7 @@ MathShape.prototype.getParentSize = function(){
 }
 MathShape.prototype.loadNextMaster = function(){
 	// load the svg masters, in sequence.
-	// console.log(this+"loadNextMaster", this);
 	if(this.currentLoadIndex<this.masterPaths.length){
-		// console.log("\tnow loading "+this.masterPaths[this.currentLoadIndex]+" from "+this.root);
 		Snap.load(this.masterPaths[this.currentLoadIndex], this.onLoaded, this);	// add the !@#$ scope!
 	} else {
 		this.calculateFactors();
@@ -176,7 +146,6 @@ MathShape.prototype.calculateSize = function(){
 }
 MathShape.prototype.calculateShapeTwoByTwo = function(){
 	var resultPath = [];
-	// $( "#outline" ).text('');
 	// when all masters are loaded
 	if(this.masterData[0]==null){
 		// still loading it seems
@@ -188,7 +157,6 @@ MathShape.prototype.calculateShapeTwoByTwo = function(){
 		// iterate through the command args
 		switch(this.masterData[0][i][0]){
 			case 'H':
-				// console.log("calculateShape H");
 				// handle horizontal segment
 				var x1 = this.ip(this.masterData[0][i][1], this.masterData[1][i][1], this.sizeFactor);
 				var x2 = this.ip(this.masterData[2][i][1], this.masterData[3][i][1], this.sizeFactor);
@@ -196,7 +164,6 @@ MathShape.prototype.calculateShapeTwoByTwo = function(){
 				newCommand.push(x);
 				break;
 			case 'V':
-				// console.log("calculateShape V");
 				// handle vertical segment
 				var y1 = this.ip(this.masterData[0][i][1], this.masterData[1][i][1], this.sizeFactor);
 				var y2 = this.ip(this.masterData[2][i][1], this.masterData[3][i][1], this.sizeFactor);
@@ -205,28 +172,21 @@ MathShape.prototype.calculateShapeTwoByTwo = function(){
 				break;
 			case 'L':
 			default:
-				// console.log("calculateShape default");
 				// handle all the other segments
 				for (var args=1; args<this.masterData[0][i].length-1; args+=2){
 					var x1 = this.ip(this.masterData[0][i][args], this.masterData[1][i][args], this.sizeFactor);
 					var y1 = this.ip(this.masterData[0][i][args+1], this.masterData[1][i][args+1], this.sizeFactor);
 					var x2 = this.ip(this.masterData[2][i][args], this.masterData[3][i][args], this.sizeFactor);
 					var y2 = this.ip(this.masterData[2][i][args+1], this.masterData[3][i][args+1], this.sizeFactor);
-					// console.log(args, newCommand);
 					var x = this.ip(x1, x2, this.playFactor);
 					var y = this.ip(y1, y2, this.playFactor);
-					// console.log(x, y);
 					newCommand.push(x);
 					newCommand.push(y);
 				};
 				break;
 		};
-		// // show the calculated instruction on the page
-		// // show the contributing masters on the page
-		// $( "#outline" ).append("<br>"+i+' '+this.masterData[0][i][0]+" "+this.masterData[1][i][0]+" "+this.masterData[2][i][0]+" "+this.masterData[3][i][0]+" <b>"+newCommand+"</b>");
 		resultPath.push(newCommand);
 	};
-	// $( "#outline" ).append("</ul>");
 	this.snap.clear()
 	var newPath = this.snap.path(resultPath);
 	var bounds = Snap.path.getBBox(newPath);
@@ -235,7 +195,6 @@ MathShape.prototype.calculateShapeTwoByTwo = function(){
 	this.snap.append(newPath);
 	var centeringOffset = 0;
 	this.boundsRatio = bounds.width / bounds.height;
-	//this.parentRatio = this.parentWidth / this.parentHeight;
 	if(this.boundsRatio<0.99*this.parentRatio){
 		switch(this.alignment){
 			// don't bother calculating the offset, just let our parent know the alignment
@@ -252,73 +211,58 @@ MathShape.prototype.calculateShapeTwoByTwo = function(){
 	if(this.fitHeight){
 		var currentSize = this.calculateSize();
 		this.snap.attr({ viewBox: "0 0 "+currentSize[0]+" "+currentSize[1]+" " });
-		// this.snap.attr({ viewBox: "0 0 "+bounds.width+" "+bounds.height+" " });
 	}
-	// console.log("calculateShape done");
 }
 
 MathShape.prototype.onLoadedLocal = function(data){
 	// when an svg is loaded locally
-	// console.log("onLoadedLocal", data)
 	outline = data.select("path")
 	outline = Snap.parsePathString(outline);
 	Snap.path.toAbsolute(outline);
-	// console.log(this+" onLoadedLocal outline", outline);
 	if(this.masterData==null){
 		this.masterData = [];
 	}
 	this.masterData.push(outline);
-	// console.log(this+" onLoadedLocal masterData", this.masterData);
 	this.currentLoadIndex++;
-	// console.log("onLoadedLocal done");
-	// console.log("onLoadedLocal masterBounds", this.masterBounds);
 };
 MathShape.prototype.onLoaded = function(data){
 	// when a svg is loaded, interpret the data.
 	// when everything is loaded, calculate the image.
-	// loadScore += 1;
-	// console.log("onLoaded", data)
 	outline = data.select("path")
 	outline = Snap.parsePathString(outline);
 	Snap.path.toAbsolute(outline);
-	// console.log(this+" onLoaded outline", outline);
-	// var imgBounds = Snap.path.getBBox(outline);
-
-	// masterBounds.push([bounds.width, bounds.height]);
 	if(this.masterData==null){
 		this.masterData = [];
 	}
 	this.masterData.push(outline);
-	// console.log(this+" onLoaded masterData", this.masterData);
 	this.currentLoadIndex++;
 	if(this.currentLoadIndex<this.masterPaths.length){
-		// console.log("onLoaded 1");
 		this.loadNextMaster();
 	} else {
-		// console.log("onLoaded 2");
+		// we're done loading.
+		// now make sure this.masterBounds has 2 elements
+		// in case all masters share 1 bounds rect,
+		// the .json will contain 1 set of values. 
+		if(this.masterBounds.length==1){
+			this.masterBounds.push(this.masterBounds[0]);
+		}
 		this.svgLoaded = true;
 	};
 	if (this.svgLoaded){
-		// console.log("onLoaded 3");
 		this.calculateFactors();
 	};
-	// console.log("onLoaded done");
 };
 MathShape.prototype.calculateFactors = function(){
 	//	The svg image height is set to 100%.
-	//	Therefor yhe window will scale the image to the right height.
+	//	Therefor the window will scale the image to the right height.
 	//	That means that we only have to calculate the appropriate width to fill the box.
-	//	Take the width / height ration from the parent, then calculate
+	//	Take the width / height ratio from the parent, then calculate
 	//	the factors needed for the image to get the same ratio. 
 	var width = $( this.elementId ).parent().outerWidth();
 	var height = $( this.elementId ).parent().outerHeight();
 	this.parentWidth = width;
 	this.parentHeight = height;
 	this.parentRatio = width/height; // we need to match this
-	// $( "#sources" ).text('sources '+this.masterPaths);
-	// $( "#windowRatio" ).text('parentRatio '+parentRatio);
-	// $( "#width" ).text('parent width '+width);
-	// $( "#height" ).text('parent height '+height);
 	// check if we can calculate the factors based on the bounds
 	// assume bounds are the same
 	var mWidths = 0;
@@ -327,14 +271,12 @@ MathShape.prototype.calculateFactors = function(){
 	var maxWidth = this.masterBounds[0][0];
 	var minHeight = this.masterBounds[0][1];
 	var maxHeight = this.masterBounds[0][1];
-	// $( "#initialBounds" ).text('initialbounds minWidth:'+ minWidth +' maxWidth '+ maxWidth +' minHeight '+ minHeight +' maxHeight '+ maxHeight);
 	for(var i=1; i<this.masterBounds.length; i+=2){
 		minWidth = Math.min(minWidth, this.masterBounds[i][0]);
 		maxWidth = Math.max(maxWidth, this.masterBounds[i][0]);
 		minHeight = Math.min(minHeight, this.masterBounds[i][1]);
 		maxHeight = Math.max(maxHeight, this.masterBounds[i][1]);
 	};
-	// $( "#shapeBounds" ).text('shapebounds '+this.masterBounds + '\nminWidth:'+ minWidth +'\nmaxWidth'+ maxWidth +'\nminHeight'+ minHeight +'\nmaxHeight'+ maxHeight);
 	this.sizeFactor = this.fc(minWidth, maxWidth, this.parentRatio*minHeight);
 	// keep the factors within 0 and 1
 	// factor 2 is controlled by other events.
