@@ -11,8 +11,8 @@ The www/ folder contains a working example. As it is loading .js and .json files
 
 The www code depends on
 
-    * jQuery, but probably not a very specific version
-    * snap.js, a very handy library for manipulating SVG data.
+ * jQuery, but probably not a very specific version
+ * snap.js, a very handy library for manipulating SVG data.
 
 All the vector data comes from json, so in theory it might be possible to rewrite all this without snap.js. 
 
@@ -24,4 +24,4 @@ Ideas and code very much in debt to <a href="http://www.typosansplomb.com/Respon
 
 ## License
 
-The Respsonve Lettering package is published under the [BSD-3 license](http://opensource.org/licenses/BSD-3-Clause).
+The Responsive Lettering package is published under the [BSD-3 license](http://opensource.org/licenses/BSD-3-Clause).
