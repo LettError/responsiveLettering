@@ -47,8 +47,10 @@
 	<string>1.1</string>
 	<key>com.robofontmechanic.Mechanic</key>
 <dict>
-  <key>repository</key>
-  <string>LettError/responsiveLettering</string>
+	<key>repository</key>
+		<string>LettError/responsiveLettering</string>
+	<key>summary</key>
+		<string>Tools for previewing, editing, generating responsive lettering with svg/html/css/javascript.</string>
 </dict>
 </dict>
 </plist>

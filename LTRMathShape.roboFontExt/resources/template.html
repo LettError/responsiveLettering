@@ -5,10 +5,11 @@
 	<meta charset="UTF-8">
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/snap.svg/0.3.0/snap.svg-min.js"></script>
-	<script>//mathshape</script>
-	<script>var data=//__jsondata;</script>
+	<script>//mathshape
+	</script>
+	<script>var data=//__jsondata;
+	</script>
 	<style>/*styles*/
-
 		body{
 			background-color: /*bgColor*/;
 		}
@@ -39,26 +40,17 @@
 		// set fill colors
 		myMathShape.setAlignment("center");
 		myMathShape.setFill(/*shapeFillColor*/);
-
 		// recalculate the image factors when resizing
 		$(window).resize(function() {
 			myMathShape.calculateFactors();
 		});
-
 		// make the images breathe.
 		// entirely optional but definitely entertaining
 		setInterval(function () { 
-
 			breathShape += 0.04;
 			myMathShape.breathe(0.5*Math.sin(breathShape*Math.PI)+0.5)
 		}, 50);
 	</script>
-
-	<div class="column"><p>
-	<!--notes-->
-	</p></div>
-
-
 
 </body>
 </html>
