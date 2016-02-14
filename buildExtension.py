@@ -10,9 +10,9 @@ import os, shutil
 
 root = os.getcwd()
 print root
-extensionPath = os.path.join(root, u"LTRMathShape.roboFontExt")
+extensionPath = os.path.join(root, u"ResponsiveLettering.roboFontExt")
 srcLibPath = os.path.join(root, u'lib', u'mathShape')
-dstLibPath = os.path.join(root, u"LTRMathShape.roboFontExt", u'lib', u'mathShape')
+dstLibPath = os.path.join(root, u"ResponsiveLettering.roboFontExt", u'lib', u'mathShape')
 
 srcMathShapePath = os.path.join(root, u'www', u'mathShape.js')
 dstMathShapePath = os.path.join(extensionPath, u'resources')

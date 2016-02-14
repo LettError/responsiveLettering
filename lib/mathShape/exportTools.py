@@ -1,6 +1,7 @@
+# -*- coding: utf-8 -*-
+
 import os
 from fontTools.pens.basePen import BasePen
-#from robofab.world import OpenFont, RFont
 from robofab.pens.boundsPen import BoundsPen
 from fontTools.pens.transformPen import TransformPen
 from fontTools.misc.transform import Transform

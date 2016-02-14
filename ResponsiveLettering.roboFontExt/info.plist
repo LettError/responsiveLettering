@@ -8,7 +8,7 @@
 			<key>path</key>
 			<string>mathShape/cmd_exportCurrentFont.py</string>
 			<key>preferredName</key>
-			<string>Export</string>
+			<string>Preview and Export</string>
 			<key>shortKey</key>
 			<string></string>
 		</dict>
@@ -17,14 +17,6 @@
 			<string>mathShape/cmd_prepareNewShape.py</string>
 			<key>preferredName</key>
 			<string>New</string>
-			<key>shortKey</key>
-			<string></string>
-		</dict>
-		<dict>
-			<key>path</key>
-			<string>mathShape/cmd_scalePastedSVGs.py</string>
-			<key>preferredName</key>
-			<string>Scale</string>
 			<key>shortKey</key>
 			<string></string>
 		</dict>
@@ -40,7 +32,7 @@
 	<key>mainScript</key>
 	<string></string>
 	<key>name</key>
-	<string>LTR MathShape</string>
+	<string>Responsive Lettering</string>
 	<key>timeStamp</key>
 	<real>1455472296.03</real>
 	<key>version</key>

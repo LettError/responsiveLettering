@@ -1,4 +1,4 @@
-
+# -*- coding: utf-8 -*-
 
 """
     paste a bunch of SVGs into a UFO and then scale and position the outlines.
