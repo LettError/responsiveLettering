@@ -62,7 +62,7 @@ def makeSVGShape(glyph, name=None, width=None, opacity=None):
     vb = (0, 0, glyph.width, bounds[3]-bounds[1])
     attrs['viewBox'] = "%3.3f %3.3f %3.3f %3.3f"%(vb[0],vb[1],vb[2],vb[3])
     attrs['enable-background']  = attrs['viewBox'] 
-    sPen = MathImageSVGPathPen({})
+    sPen = MathImageSVGPathPen({}, optimise=False, lineAsCurve=True)
     tPen = TransformPen(sPen, t)
     glyph.draw(tPen)
     path = "<path d=\"%s\"/>"%(sPen.getCommands())
