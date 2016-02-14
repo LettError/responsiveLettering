@@ -20,6 +20,9 @@ class ExportUI(object):
     preferredFilenameLibKey = "com.letterror.mathshape.filename"
     masterNames = ['narrow-thin', 'wide-thin', 'narrow-bold', 'wide-bold']
     def __init__(self):
+        f = CurrentFont()
+        if f is None:
+            return
         self.shapeColor = None
         self.backgroundColor = None
         self.extrapolateMinValue = 0
@@ -47,19 +50,25 @@ class ExportUI(object):
         self.cbMakePreview(None)
     
     def windowBecameMainCallback(self, sender):
-        self.update()
-        self.cbMakePreview(None)
+        f = CurrentFont()
+        if f is not None:
+            self.update()
+            self.cbMakePreview(None)
 
     def callbackListClick(self, sender):
         # called after a double click on one of the glyphs in the list.
         # open up a glyph window.
         f = CurrentFont()
+        if f is None:
+            return
         for i in sender.getSelection():
             OpenGlyphWindow(glyph=f[self.masterNames[i]], newWindow=True)
 
 
     def setColorsFromLib(self):
         f = CurrentFont()
+        if f is None:
+            return
         shapeColor = (1,1,1,0.5)
         backgroundColor = (0,0,0,1)
         if self.shapeColorLibKey in f.lib.keys():
@@ -77,6 +86,8 @@ class ExportUI(object):
 
     def writeColorsToLib(self):
         f = CurrentFont()
+        if f is None:
+            return
         f.lib[self.shapeColorLibKey] = self.shapeColor
         f.lib[self.backgroundColorLibKey] = self.backgroundColor
 
@@ -93,6 +104,8 @@ class ExportUI(object):
     def update(self):
         # when starting, or when there is an update?
         f = CurrentFont()
+        if f is None:
+            return
         # update color from lib
         glyphs = self.wrapGlyphs()
         self.w.l.set(glyphs)
@@ -111,8 +124,10 @@ class ExportUI(object):
         return True
         
     def wrapGlyphs(self):
-        f = CurrentFont()
         glyphs = []
+        f = CurrentFont()
+        if f is None:
+            return
         names = f.keys()
         names.sort()
         layers = f.layerOrder
@@ -192,9 +207,12 @@ class ExportUI(object):
 
     def dump(self):
         f = CurrentFont()
+        if f is None:
+            return
         proposedName = self.proposeFilename(f)
         # export the mathshape
         root, tags, metaData = exportCurrentFont(f, self.masterNames, proposedName, self.extrapolateMinValue, self.extrapolateMaxValue)
+        outputPath = os.path.join(root, "preview_%s.html"%proposedName)
         resourcesPath = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "Resources")
         outputPath = os.path.join(root, "preview_%s.html"%proposedName)
         pm = PageMaker(resourcesPath, os.path.join(root, proposedName),
