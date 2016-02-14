@@ -16,7 +16,7 @@ The www code depends on
 
 All the vector data comes from json, so in theory it might be possible to rewrite all this without snap.js. 
 
-![RoboFont Extension](RoboFontMathShapeExporter_screen.jpg)
+![RoboFont Extension](RoboFontMathShapeExporter_screen.gif)
 
 The RoboFont extension is a useful tool for previewing and exporting vector work in a UFO to mathshape data. It can also be installed director from <a href="http://www.robofontmechanic.com">RoboFontMechanic</a>.
 
