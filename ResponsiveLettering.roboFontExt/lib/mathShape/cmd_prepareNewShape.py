@@ -38,6 +38,7 @@ def prepareMathShapeUFO(narrow=500, wide=2500, upm=1000, familyName="MathShape",
         pen.lineTo((g.width,asc))
         pen.lineTo((0,asc))
         pen.closePath()
+        g.update()
     # draw some sort of intro / test shape?
     thin = 5
     thick = 100
@@ -127,6 +128,8 @@ class NewMathShapePicker(BaseWindowController):
 
     def _saveFile(self, path):
         if self.fontObject is not None:
+            for g in self.fontObject:
+                g.update()
             self.fontObject.save(path)
         self.w.close()
         
