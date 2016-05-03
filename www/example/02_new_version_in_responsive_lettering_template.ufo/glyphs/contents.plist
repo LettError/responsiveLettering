@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple Computer//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>narrow-bold</key>
+	<string>narrow-bold.glif</string>
+	<key>narrow-thin</key>
+	<string>narrow-thin.glif</string>
+	<key>wide-bold</key>
+	<string>wide-bold.glif</string>
+	<key>wide-thin</key>
+	<string>wide-thin.glif</string>
+</dict>
+</plist>

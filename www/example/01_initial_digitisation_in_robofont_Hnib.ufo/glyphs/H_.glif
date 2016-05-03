@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<glyph name="H" format="1">
+  <advance width="1169.85947526"/>
+  <unicode hex="0048"/>
+  <outline>
+    <contour>
+      <point x="50" y="-3" type="line"/>
+      <point x="73" y="720" type="line"/>
+      <point x="144" y="715" type="line"/>
+      <point x="119" y="-5" type="line"/>
+    </contour>
+    <contour>
+      <point x="227" y="-3" type="line"/>
+      <point x="250" y="720" type="line"/>
+      <point x="321" y="715" type="line"/>
+      <point x="296" y="-5" type="line"/>
+    </contour>
+    <contour>
+      <point x="377" y="-3" type="line"/>
+      <point x="400" y="510" type="line"/>
+      <point x="471" y="505" type="line"/>
+      <point x="446" y="-5" type="line"/>
+    </contour>
+    <contour>
+      <point x="100" y="381" type="line"/>
+      <point x="273" y="375" type="line"/>
+      <point x="278" y="317" type="line"/>
+      <point x="103" y="323" type="line"/>
+    </contour>
+    <contour>
+      <point x="458" y="448" type="line"/>
+      <point x="478" y="483"/>
+      <point x="512" y="506"/>
+      <point x="544" y="506" type="curve" smooth="yes"/>
+      <point x="602" y="506"/>
+      <point x="632" y="470"/>
+      <point x="630" y="395" type="curve" smooth="yes"/>
+      <point x="618" y="-5" type="line"/>
+      <point x="546" y="-7" type="line"/>
+      <point x="563" y="381" type="line" smooth="yes"/>
+      <point x="564.652644385" y="418.719177726"/>
+      <point x="549.579320447" y="436.882758162"/>
+      <point x="525" y="438" type="curve" smooth="yes"/>
+      <point x="492.839383315" y="438.945900491"/>
+      <point x="471.249862633" y="426.985874535"/>
+      <point x="455" y="399" type="curve"/>
+    </contour>
+    <contour>
+      <point x="707" y="-3" type="line"/>
+      <point x="730" y="510" type="line"/>
+      <point x="801" y="505" type="line"/>
+      <point x="776" y="-5" type="line"/>
+    </contour>
+    <contour>
+      <point x="733" y="617" type="line"/>
+      <point x="740" y="730" type="line"/>
+      <point x="811" y="725" type="line"/>
+      <point x="802" y="615" type="line"/>
+    </contour>
+    <contour>
+      <point x="858" y="41" type="curve"/>
+      <point x="880" y="720" type="line"/>
+      <point x="951" y="715" type="line"/>
+      <point x="927" y="74" type="line"/>
+      <point x="940" y="60"/>
+      <point x="959" y="54"/>
+      <point x="984" y="55" type="curve" smooth="yes"/>
+      <point x="1004.99848518" y="55.9999278655"/>
+      <point x="1043.34990896" y="82.5475159016"/>
+      <point x="1050" y="264" type="curve" smooth="yes"/>
+      <point x="1055.99949046" y="417.986921817"/>
+      <point x="1023.45658121" y="436.979246309"/>
+      <point x="1001" y="438" type="curve" smooth="yes"/>
+      <point x="968.701678382" y="438.949950636"/>
+      <point x="941.266666929" y="427.014815267"/>
+      <point x="925" y="399" type="curve"/>
+      <point x="928" y="448" type="line"/>
+      <point x="947.841453882" y="482.722544293"/>
+      <point x="986.043478261" y="506.0"/>
+      <point x="1017" y="506" type="curve" smooth="yes"/>
+      <point x="1076.75757576" y="506.0"/>
+      <point x="1127.00038538" y="469.009730932"/>
+      <point x="1119" y="267" type="curve" smooth="yes"/>
+      <point x="1110" y="25"/>
+      <point x="1033" y="-11"/>
+      <point x="975" y="-11" type="curve" smooth="yes"/>
+      <point x="920" y="-11"/>
+      <point x="887" y="11"/>
+    </contour>
+  </outline>
+  <lib>
+    <dict>
+      <key>com.typemytype.robofont.image</key>
+      <dict>
+        <key>brightness</key>
+        <real>0.45409148931503296</real>
+        <key>contrast</key>
+        <real>1.0386598110198975</real>
+        <key>path</key>
+        <string>/Users/erik/Jobs/20160503 ISIA Responsive/00_Hnib_original_scan.jpg</string>
+        <key>saturation</key>
+        <real>1.0</real>
+        <key>sharpness</key>
+        <real>0.4000000059604645</real>
+        <key>transform</key>
+        <array>
+          <real>1.213208401764339</real>
+          <real>-0.027538049178642936</real>
+          <real>0.027538049178642936</real>
+          <real>1.213208401764339</real>
+          <real>-86.39551300647904</real>
+          <real>-168.96334977274924</real>
+        </array>
+      </dict>
+    </dict>
+  </lib>
+</glyph>

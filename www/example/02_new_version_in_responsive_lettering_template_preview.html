@@ -1,0 +1,375 @@
+<html>
+
+<head>
+	<title>LettError MathShape Preview</title>
+	<meta charset="UTF-8">
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/snap.svg/0.3.0/snap.svg-min.js"></script>
+	<script>
+
+
+// edits 20160115
+
+// mathImage object
+// takes 4 names of svg files
+// loads them with snap
+// then makes 2 axis interpolation
+// that fill the parent box.
+// factor 1: width
+// factor 2: play
+
+// With thanks to Jérémie Hornus, Nina Stössinger, Nick Sherman, Andrew Johnson, Petr van Blokland and Gerrit Noordzij.
+
+// For the time being, for practical reasons, this is (c) erik van blokland 2015
+// Assume this code is a proof of concept and a nice demo. No guarantee for how this code
+// holds up under greater loads, heavy files, production or otherwise demanding environments. 
+
+		// tools
+		function roundToTwo(num) {    
+			return +(Math.round(num + "e+2")  + "e-2");
+		}
+		function value(v){
+			return "<span class='value'>"+v+"</span>"
+		}
+
+// mathshape class
+function MathShape(elementId, miURL){
+	this.shapeVersion = "0.4";
+	this.elementId = elementId;
+	this.reporterElementId = "#mathShapeReporter";
+	this.masterPaths = [];
+	this.root = miURL;
+	this.mastersLoaded = [];	// the order in which the masters have actually loaded
+	this.masterBounds = [];		// min max bounds of the masters (we get wrong results from snap)
+	this.sizeFactor = 0.5;			// factor1 width/height ratio
+	this.playFactor = 1.0;			// factor2
+	this.currentLoadIndex = 0;	// keep track of the number of files we loaded
+	this.svgLoaded = false;		// are we done?
+	this.masterData = [];		// all the loaded svg data
+	this.extrapolateMin = 0;	// extrapolate minimum
+	this.extrapolateMax = 1.25;		// extrapolate maximum
+	this.boundsRatio = 0			// ratio of the current bounds
+	this.parentRatio = 0			// ratio of the parent bounds
+	this.shapeFill = "white";			// default fill color
+	this.shapeStroke = "#000";		// default stroke color
+	this.shapeFillOpacity = 1;		// default fill opacity
+	this.fitHeight = true;			// fit the height of the parent vertically
+	this.alignment = 'right';
+	this.strokeWidth = 2		// default stroke width
+	this.parentWidth = 0;		// whatever the latest width we know of the parent
+	this.parentHeight = 0;		// whatever the latest height we know of the parent
+}
+MathShape.prototype.loadLocal = function(){
+	// load the data for this mathShape from the stuff available in this page. 
+	this.snap = Snap(this.elementId);
+	this.masterPaths = data['files'];
+	this.masterBounds = data['sizebounds'];
+	this.extrapolateMin = data['extrapolatemin'];
+	this.extrapolateMax = data['extrapolatemax'];
+	this.designspace = "twobyone";	//data['designspace'];
+	this.onLoadedLocal(Snap('#narrow-thin'));
+	this.onLoadedLocal(Snap('#wide-thin'));
+	this.onLoadedLocal(Snap('#narrow-bold'));
+	this.onLoadedLocal(Snap('#wide-bold'));
+	this.svgLoaded = true;
+	this.calculateFactors();
+}
+MathShape.prototype.loadFromWeb = function(){
+	// load the data for this mathshape from the url
+	this.snap = Snap(this.elementId);
+	var self = this;	// http://stackoverflow.com/questions/2325866/assigning-scope-amongst-jquery-getjson-and-a-js-class
+	var miPath = this.root+"/files.json";
+
+	jQuery.getJSON(miPath, {}, function(data){
+		self.masterPaths = data['files'];
+		self.masterBounds = data['sizebounds'];
+		self.extrapolateMin = data['extrapolatemin'];
+		self.extrapolateMax = data['extrapolatemax'];
+		self.designspace = "twobyone";	//data['designspace'];
+		if(self.designspace == undefined){
+			// if we have no designspace values, then assume it is two by two
+			self.designspace = "twobyone";	//"twobytwo";
+		}
+		self.loadNextMaster();
+	});
+
+	$(this.elementId).click(function callbackClick(data){
+		$(this.elementId).attr("height", "100%")
+		self.breathe(0);
+	});
+}
+MathShape.prototype.breathe = function(factor){
+	//  redraw with the current size
+	// animate the other factor
+	this.playFactor = factor;
+	if(this.svgLoaded==true){
+		this.calculateFactors();
+	}
+}
+MathShape.prototype.setFill = function(color, opacity){
+	// set the preferred color and opacity
+	this.shapeFill = color;
+	if(opacity!=undefined){
+		self.shapeFillOpacity = opacity;
+	}
+}
+MathShape.prototype.setAlignment = function(alignment){
+	// set the preferred alignment in the parent.
+	this.alignment = alignment;
+}
+MathShape.prototype.ip = function(a, b, f){
+	// interpolate function
+	return a + f * (b-a);
+};
+MathShape.prototype.fc = function(a, b, c){
+	// get factor from min / max and value.
+	return (c-a)/(b-a);
+};
+MathShape.prototype.getParentSize = function(){
+	// obtain the height and width of the parent
+	return [$(this.elementId).parent().width(), $(this.elementId).parent().height()];
+}
+MathShape.prototype.loadNextMaster = function(){
+	// load the svg masters, in sequence.
+	if(this.currentLoadIndex<this.masterPaths.length){
+		Snap.load(this.masterPaths[this.currentLoadIndex], this.onLoaded, this);	// add the !@#$ scope!
+	} else {
+		this.calculateFactors();
+	}
+}
+MathShape.prototype.calculateSize = function(){
+	// calculate the size according to the current factors.
+	// we want to calculate the size based on the masterBounds
+	// because those might be different from the actual bounds
+	// of the shape. (So that the shape can have some margin to
+	// to the edge of the;box.)
+	var currentWidth = 0;
+	var currentHeight = 0;
+	// interpolate the horizontal component fo the masterbounds
+	// the vertical is the same, right?
+	currentWidth = this.ip(this.masterBounds[0][0], this.masterBounds[1][0], this.sizeFactor);
+	currentHeight = this.masterBounds[0][1]
+	return [currentWidth, currentHeight];
+}
+MathShape.prototype.calculateShapeTwoByTwo = function(){
+	var resultPath = [];
+	// when all masters are loaded
+	if(this.masterData[0]==null){
+		// still loading it seems
+		return;
+	}
+	var ptLength = this.masterData[0].length;
+	for (var i = 0; i < ptLength; i++) {
+		var newCommand = [this.masterData[0][i][0]]; // add the command
+		// iterate through the command args
+		switch(this.masterData[0][i][0]){
+			case 'H':
+				// handle horizontal segment
+				var x1 = this.ip(this.masterData[0][i][1], this.masterData[1][i][1], this.sizeFactor);
+				var x2 = this.ip(this.masterData[2][i][1], this.masterData[3][i][1], this.sizeFactor);
+				var x = this.ip(x1, x2, this.playFactor);
+				newCommand.push(x);
+				break;
+			case 'V':
+				// handle vertical segment
+				var y1 = this.ip(this.masterData[0][i][1], this.masterData[1][i][1], this.sizeFactor);
+				var y2 = this.ip(this.masterData[2][i][1], this.masterData[3][i][1], this.sizeFactor);
+				var y = this.ip(y1, y2, this.playFactor);
+				newCommand.push(y);
+				break;
+			case 'L':
+			default:
+				// handle all the other segments
+				for (var args=1; args<this.masterData[0][i].length-1; args+=2){
+					var x1 = this.ip(this.masterData[0][i][args], this.masterData[1][i][args], this.sizeFactor);
+					var y1 = this.ip(this.masterData[0][i][args+1], this.masterData[1][i][args+1], this.sizeFactor);
+					var x2 = this.ip(this.masterData[2][i][args], this.masterData[3][i][args], this.sizeFactor);
+					var y2 = this.ip(this.masterData[2][i][args+1], this.masterData[3][i][args+1], this.sizeFactor);
+					var x = this.ip(x1, x2, this.playFactor);
+					var y = this.ip(y1, y2, this.playFactor);
+					newCommand.push(x);
+					newCommand.push(y);
+				};
+				break;
+		};
+		resultPath.push(newCommand);
+	};
+	this.snap.clear()
+	var newPath = this.snap.path(resultPath);
+	var bounds = Snap.path.getBBox(newPath);
+	// paint instructions
+	newPath.attr({'fill': this.shapeFill, 'opacity': this.shapeFillOpacity});
+	this.snap.append(newPath);
+	var centeringOffset = 0;
+	this.boundsRatio = bounds.width / bounds.height;
+	if(this.boundsRatio<0.99*this.parentRatio){
+		switch(this.alignment){
+			// don't bother calculating the offset, just let our parent know the alignment
+			case 'center':
+				$(this.elementId).parent().attr('align', 'center');
+				break;
+			case 'right':
+				$(this.elementId).parent().attr('align', 'right');
+				break;
+		}
+	}
+	// if the bounds of the resulting shape are not enough to fit the box,
+	// center the image in the box
+	if(this.fitHeight){
+		var currentSize = this.calculateSize();
+		this.snap.attr({ viewBox: "0 0 "+currentSize[0]+" "+currentSize[1]+" " });
+	}
+}
+
+MathShape.prototype.onLoadedLocal = function(data){
+	// when an svg is loaded locally
+	outline = data.select("path")
+	outline = Snap.parsePathString(outline);
+	Snap.path.toAbsolute(outline);
+	if(this.masterData==null){
+		this.masterData = [];
+	}
+	this.masterData.push(outline);
+	this.currentLoadIndex++;
+};
+MathShape.prototype.onLoaded = function(data){
+	// when a svg is loaded, interpret the data.
+	// when everything is loaded, calculate the image.
+	outline = data.select("path")
+	outline = Snap.parsePathString(outline);
+	Snap.path.toAbsolute(outline);
+	if(this.masterData==null){
+		this.masterData = [];
+	}
+	this.masterData.push(outline);
+	this.currentLoadIndex++;
+	if(this.currentLoadIndex<this.masterPaths.length){
+		this.loadNextMaster();
+	} else {
+		// we're done loading.
+		// now make sure this.masterBounds has 2 elements
+		// in case all masters share 1 bounds rect,
+		// the .json will contain 1 set of values. 
+		if(this.masterBounds.length==1){
+			this.masterBounds.push(this.masterBounds[0]);
+		}
+		this.svgLoaded = true;
+	};
+	if (this.svgLoaded){
+		this.calculateFactors();
+	};
+};
+MathShape.prototype.calculateFactors = function(){
+	//	The svg image height is set to 100%.
+	//	Therefor the window will scale the image to the right height.
+	//	That means that we only have to calculate the appropriate width to fill the box.
+	//	Take the width / height ratio from the parent, then calculate
+	//	the factors needed for the image to get the same ratio. 
+	var width = $( this.elementId ).parent().outerWidth();
+	var height = $( this.elementId ).parent().outerHeight();
+	this.parentWidth = width;
+	this.parentHeight = height;
+	this.parentRatio = width/height; // we need to match this
+	// check if we can calculate the factors based on the bounds
+	// assume bounds are the same
+	var mWidths = 0;
+	var mHeights = 0;
+	var minWidth = this.masterBounds[0][0];
+	var maxWidth = this.masterBounds[0][0];
+	var minHeight = this.masterBounds[0][1];
+	var maxHeight = this.masterBounds[0][1];
+	for(var i=1; i<this.masterBounds.length; i+=2){
+		minWidth = Math.min(minWidth, this.masterBounds[i][0]);
+		maxWidth = Math.max(maxWidth, this.masterBounds[i][0]);
+		minHeight = Math.min(minHeight, this.masterBounds[i][1]);
+		maxHeight = Math.max(maxHeight, this.masterBounds[i][1]);
+	};
+	this.sizeFactor = this.fc(minWidth, maxWidth, this.parentRatio*minHeight);
+	// keep the factors within 0 and 1
+	// factor 2 is controlled by other events.
+	this.sizeFactor = Math.min(this.extrapolateMax, Math.max(this.extrapolateMin, this.sizeFactor));
+	this.calculateShapeTwoByTwo();
+}
+
+// done
+	</script>
+	<script>var data={"files": ["isia_hnib20160503_ms/narrow-thin.svg", "isia_hnib20160503_ms/wide-thin.svg", "isia_hnib20160503_ms/narrow-bold.svg", "isia_hnib20160503_ms/wide-bold.svg"], "extrapolatemin": 0, "designspace": "twobytwo", "sizebounds": [[1170, 800], [2270, 800]], "extrapolatemax": 1};
+	</script>
+	<style>body{
+		margin:0;
+		padding:0;
+}
+.column p{
+	margin-top: 2em;
+	font-family: "Georgia";
+	font-size: 10pt;
+	line-height: 16pt;
+	color: white;
+}
+div.svgloader{
+	display: none;
+}
+@media screen {
+	/*two boxes next to each other*/
+	#svgcontainer{
+		margin-top:0vh;
+		margin-left:0vw;
+		height: 100vh;
+		width: 100vw;
+	}
+	.column{
+		position: absolute;
+		margin-top:65vh;
+		margin-left:50vw;
+		height: 45vh;
+		width: 20%;
+	}
+}
+
+		body{
+			background-color: rgba(255, 142, 16, 1.00);
+		}
+	</style>
+
+</head>
+
+<body>
+	<div class="svgloader"><?xml version="1.0" standalone="no"?><!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd"><svg style="fill-rule:nonzero;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:1.41421;" xmlns="http://www.w3.org/2000/svg" name="narrow-thin" title="None" xml:space="preserve" viewBox="0.000 0.000 1170.000 800.000" width="100%" xmlns:xlink="http://www.w3.org/1999/xlink" id="narrow-thin" enable-background="0.000 0.000 1170.000 800.000"><path d="M50 753C50 753 73 30 73 30C73 30 144 35 144 35C144 35 119 755 119 755ZM227 753C227 753 250 30 250 30C250 30 321 35 321 35C321 35 296 755 296 755ZM377 753C377 753 400 240 400 240C400 240 471 245 471 245C471 245 446 755 446 755ZM100 369C100 369 273 375 273 375C273 375 278 433 278 433C278 433 103 427 103 427ZM458 302C478 267 512 244 544 244C602 244 632 280 630 355C630 355 618 755 618 755C618 755 546 757 546 757C546 757 562 372 562 372C564 332 549.3454 312.9738 525 312C493 311 471 323 455 351ZM700 753C700 753 723 240 723 240C723 240 794 245 794 245C794 245 769 755 769 755ZM726 133C726 133 733 20 733 20C733 20 804 25 804 25C804 25 795 135 795 135ZM858 709C858 709 880 30 880 30C880 30 951 35 951 35C951 35 927 676 927 676C939.6878 689.6638 957.3136 695.9475 981 695C1001.9654 693.9517 1039.0001 666.9975 1046 486C1051.9994 332.0167 1024.7037 312 996 312C967 312 941 326 925 351C925 351 928 302 928 302C948 267 986 244 1017 244C1081.0588 244 1123.9995 281.012 1116 483C1107.0003 724.9909 1031.7917 761 975 761C920 761 887 739 858 709Z"/></svg>
+<?xml version="1.0" standalone="no"?><!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd"><svg style="fill-rule:nonzero;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:1.41421;" xmlns="http://www.w3.org/2000/svg" name="wide-thin" title="None" xml:space="preserve" viewBox="0.000 0.000 2270.000 800.000" width="100%" xmlns:xlink="http://www.w3.org/1999/xlink" id="wide-thin" enable-background="0.000 0.000 2270.000 800.000"><path d="M50 753C50 753 73 30 73 30C73 30 144 35 144 35C144 35 119 755 119 755ZM497 753C497 753 520 30 520 30C520 30 591 35 591 35C591 35 566 755 566 755ZM707 753C707 753 730 240 730 240C730 240 801 245 801 245C801 245 776 755 776 755ZM100 429C100 429 543 435 543 435C543 435 548 493 548 493C548 493 103 487 103 487ZM787 361C840 276 928.6295 244 1012 244C1140 244 1208 312 1202 455C1202 455 1190 755 1190 755C1190 755 1118 757 1118 757C1118 757 1135 469 1135 469C1142 356 1109 302 993 302C902 302 842 330 785 401ZM1371 753C1371 753 1394 240 1394 240C1394 240 1465 245 1465 245C1465 245 1440 755 1440 755ZM1397 133C1397 133 1404 20 1404 20C1404 20 1475 25 1475 25C1475 25 1466 135 1466 135ZM1628 716C1628 716 1650 30 1650 30C1650 30 1721 35 1721 35C1721 35 1697 676 1697 676C1735 692 1803 700 1875 699C1960 697 2143 671 2143 508C2143 345 2028 312 1917 312C1818 312 1741 333 1695 361C1695 361 1698 312 1698 312C1761 272 1855 248 1932 248C2114 248 2215 333 2215 509C2215 711 2012 761 1873 761C1745 761 1673 737 1628 716Z"/></svg>
+<?xml version="1.0" standalone="no"?><!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd"><svg style="fill-rule:nonzero;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:1.41421;" xmlns="http://www.w3.org/2000/svg" name="narrow-bold" title="None" xml:space="preserve" viewBox="0.000 0.000 1170.000 800.000" width="100%" xmlns:xlink="http://www.w3.org/1999/xlink" id="narrow-bold" enable-background="0.000 0.000 1170.000 800.000"><path d="M50 753C50 753 73 30 73 30C73 30 144 35 144 35C144 35 119 755 119 755ZM227 753C227 753 250 30 250 30C250 30 321 35 321 35C321 35 296 755 296 755ZM377 753C377 753 400 240 400 240C400 240 471 245 471 245C471 245 446 755 446 755ZM100 369C100 369 273 375 273 375C273 375 278 433 278 433C278 433 103 427 103 427ZM458 302C478 267 512 244 544 244C602 244 632 280 630 355C630 355 618 755 618 755C618 755 546 757 546 757C546 757 562 372 562 372C564 332 549.3454 312.9738 525 312C493 311 471 323 455 351ZM700 753C700 753 723 240 723 240C723 240 794 245 794 245C794 245 769 755 769 755ZM726 133C726 133 733 20 733 20C733 20 804 25 804 25C804 25 795 135 795 135ZM858 709C858 709 880 30 880 30C880 30 951 35 951 35C951 35 927 676 927 676C939.6878 689.6638 957.3136 695.9475 981 695C1001.9654 693.9517 1039.0001 666.9975 1046 486C1051.9994 332.0167 1024.7037 312 996 312C967 312 941 326 925 351C925 351 928 302 928 302C948 267 986 244 1017 244C1081.0588 244 1123.9995 281.012 1116 483C1107.0003 724.9909 1031.7917 761 975 761C920 761 887 739 858 709Z"/></svg>
+<?xml version="1.0" standalone="no"?><!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd"><svg style="fill-rule:nonzero;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:1.41421;" xmlns="http://www.w3.org/2000/svg" name="wide-bold" title="None" xml:space="preserve" viewBox="0.000 0.000 2270.000 800.000" width="100%" xmlns:xlink="http://www.w3.org/1999/xlink" id="wide-bold" enable-background="0.000 0.000 2270.000 800.000"><path d="M50 753C50 753 73 30 73 30C73 30 144 35 144 35C144 35 119 755 119 755ZM497 753C497 753 520 30 520 30C520 30 591 35 591 35C591 35 566 755 566 755ZM707 753C707 753 730 240 730 240C730 240 801 245 801 245C801 245 776 755 776 755ZM100 429C100 429 543 435 543 435C543 435 548 493 548 493C548 493 103 487 103 487ZM787 361C840 276 928.6295 244 1012 244C1140 244 1208 312 1202 455C1202 455 1190 755 1190 755C1190 755 1118 757 1118 757C1118 757 1135 469 1135 469C1142 356 1109 302 993 302C902 302 842 330 785 401ZM1371 753C1371 753 1394 240 1394 240C1394 240 1465 245 1465 245C1465 245 1440 755 1440 755ZM1397 133C1397 133 1404 20 1404 20C1404 20 1475 25 1475 25C1475 25 1466 135 1466 135ZM1628 716C1628 716 1650 30 1650 30C1650 30 1721 35 1721 35C1721 35 1697 676 1697 676C1735 692 1803 700 1875 699C1960 697 2143 671 2143 508C2143 345 2028 312 1917 312C1818 312 1741 333 1695 361C1695 361 1698 312 1698 312C1761 272 1855 248 1932 248C2114 248 2215 333 2215 509C2215 711 2012 761 1873 761C1745 761 1673 737 1628 716Z"/></svg></div>
+
+	<div id="svgcontainer">
+		<svg id="mathShape" title="test"
+			viewBox="0 0 1000 1000"
+			enable-background="0 0 1000 1000"
+			height="100%"
+			xmlns="http://www.w3.org/2000/svg"@
+			xmlns:xlink="http://www.w3.org/1999/xlink"
+			xml:space="preserve"
+			style="fill-rule:non-zero;clip-rule:nonzero;stroke-linejoin:round;stroke-miterlimit:1.41421;">
+		</svg>
+	</div>
+
+	<script>
+		var breathShape = 0.3;
+		var myMathShape = new MathShape("#mathShape", "placeholder_ms");
+		myMathShape.loadLocal();
+		//myMathShape.loadFromWeb();
+		// set fill colors
+		myMathShape.setAlignment("center");
+		myMathShape.setFill("rgba(255, 0, 0, 1.00)");
+		// recalculate the image factors when resizing
+		$(window).resize(function() {
+			myMathShape.calculateFactors();
+		});
+		// make the images breathe.
+		// entirely optional but definitely entertaining
+		setInterval(function () { 
+			breathShape += 0.04;
+			myMathShape.breathe(0.5*Math.sin(breathShape*Math.PI)+0.5)
+		}, 50);
+	</script>
+
+</body>
+</html>
