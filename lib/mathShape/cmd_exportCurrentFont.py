@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 
 import os
 import json
@@ -19,22 +20,25 @@ class ExportUI(object):
     preferredFilenameLibKey = "com.letterror.mathshape.filename"
     masterNames = ['narrow-thin', 'wide-thin', 'narrow-bold', 'wide-bold']
     def __init__(self):
+        f = CurrentFont()
+        if f is None:
+            return
         self.shapeColor = None
         self.backgroundColor = None
         self.extrapolateMinValue = 0
         self.extrapolateMaxValue = 1
-        self.w = vanilla.Window((500, 600), "MathShape Exporter", minSize=(300,200))
-        self.w.preview = HTMLView((0,0,-0, -200))
-        self.w.exportButton = vanilla.Button((-150, -30, -10, 20), "Export SVG", callback=self.cbExport)
-        #self.w.previewButton = vanilla.Button((10, -30, -160, 20), "Make Preview", callback=self.cbMakePreview)
-        #self.w.previewButton.enable(False)
-        
+        self.w = vanilla.Window((500, 600), "Responsive Lettering", minSize=(300,200))
+        self.w.preview = HTMLView((0,0,-0, -140))
+        self.w.exportButton = vanilla.Button((-150, -30, -10, 20), "Export SVG", callback=self.cbExport)        
         columnDescriptions = [
-            dict(title="Glyphname", key="name", width=100),
-            dict(title="Width", key="width"),
-            dict(title="Has Bounds", key="bounds", width=100),
+            dict(title="Glyphname", key="name", width=125),
+            dict(title="Width", key="width", width=50),
+            dict(title="Height", key="height", width=50),
+            dict(title="Bounds?", key="bounds", width=75),
+            dict(title="Contours", key="contours", width=50),
+            dict(title="Points", key="points", width=50),
         ]
-        self.w.l = vanilla.List((0,-200,-0,-40), self.wrapGlyphs(), columnDescriptions=columnDescriptions)
+        self.w.l = vanilla.List((0,-140,-0,-40), self.wrapGlyphs(), columnDescriptions=columnDescriptions, doubleClickCallback=self.callbackListClick)
         self.w.t = vanilla.TextBox((70,-27,-160,20), "FontName", sizeStyle="small")
         self.w.backgroundColorWell = vanilla.ColorWell((10,-30, 20, 20), callback=self.backgroundColorWellCallback, color=NSColor.blackColor())
         self.w.shapeColorWell = vanilla.ColorWell((35,-30, 20, 20), callback=self.shapeColorWellCallback, color=NSColor.whiteColor())
@@ -46,11 +50,25 @@ class ExportUI(object):
         self.cbMakePreview(None)
     
     def windowBecameMainCallback(self, sender):
-        self.update()
-        self.cbMakePreview(None)
+        f = CurrentFont()
+        if f is not None:
+            self.update()
+            self.cbMakePreview(None)
+
+    def callbackListClick(self, sender):
+        # called after a double click on one of the glyphs in the list.
+        # open up a glyph window.
+        f = CurrentFont()
+        if f is None:
+            return
+        for i in sender.getSelection():
+            OpenGlyphWindow(glyph=f[self.masterNames[i]], newWindow=True)
+
 
     def setColorsFromLib(self):
         f = CurrentFont()
+        if f is None:
+            return
         shapeColor = (1,1,1,0.5)
         backgroundColor = (0,0,0,1)
         if self.shapeColorLibKey in f.lib.keys():
@@ -68,6 +86,8 @@ class ExportUI(object):
 
     def writeColorsToLib(self):
         f = CurrentFont()
+        if f is None:
+            return
         f.lib[self.shapeColorLibKey] = self.shapeColor
         f.lib[self.backgroundColorLibKey] = self.backgroundColor
 
@@ -84,11 +104,13 @@ class ExportUI(object):
     def update(self):
         # when starting, or when there is an update?
         f = CurrentFont()
+        if f is None:
+            return
         # update color from lib
         glyphs = self.wrapGlyphs()
         self.w.l.set(glyphs)
         folderName = self.proposeFilename(f)
-        self.w.t.set("Will save as: \"%s\""%folderName)
+        self.w.t.set(u"📦 %s"%folderName)
     
     def validate(self, font):
         # can we generate this one?
@@ -102,26 +124,54 @@ class ExportUI(object):
         return True
         
     def wrapGlyphs(self):
-        f = CurrentFont()
         glyphs = []
+        f = CurrentFont()
+        if f is None:
+            return
         names = f.keys()
         names.sort()
         layers = f.layerOrder
         if 'bounds' in layers:
-            hasBounds = "yes"
+            hasBounds = "yup"
         else:
-            hasBounds = "no"
+            hasBounds = "nope"
         for n in names:
             if n in self.masterNames:
                 status = True
             else:
                 continue
             g = f[n]
-            g.getLayer
-            d = dict(name=g.name,width=g.width, bounds=hasBounds,status=status)
+            if hasBounds:
+                gb = g.getLayer('bounds')
+                xMin, yMin, xMax, yMax = gb.box
+                width = xMax-xMin
+                height = yMax-yMin
+            else:
+                width = g.width
+                height = None
+            contours, points = self.countGlyph(g)
+            d = dict(name=g.name,
+                    width=width,
+                    height=height,
+                    bounds=hasBounds,
+                    status=status,
+                    contours=contours,
+                    points=points,
+                    )
             glyphs.append(d)
         return glyphs
     
+    def countGlyph(self, glyph):
+        # count the contours and the points
+        contours = 0
+        points = 0
+        for c in glyph.contours:
+            contours +=1
+            for s in c.segments:
+                for p in s.points:
+                    points +=1
+        return contours, points
+
     def shapeColorWellCallback(self, sender):
         # update the color from the colorwell
         clr = sender.get()
@@ -157,9 +207,12 @@ class ExportUI(object):
 
     def dump(self):
         f = CurrentFont()
+        if f is None:
+            return
         proposedName = self.proposeFilename(f)
         # export the mathshape
         root, tags, metaData = exportCurrentFont(f, self.masterNames, proposedName, self.extrapolateMinValue, self.extrapolateMaxValue)
+        outputPath = os.path.join(root, "preview_%s.html"%proposedName)
         resourcesPath = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "Resources")
         outputPath = os.path.join(root, "preview_%s.html"%proposedName)
         pm = PageMaker(resourcesPath, os.path.join(root, proposedName),

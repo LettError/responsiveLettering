@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 from fontTools.pens.basePen import BasePen
 from ufo2svg.tools import pointToString, valueToString
 
@@ -12,13 +14,14 @@ from ufo2svg.tools import pointToString, valueToString
 
 class MathImageSVGPathPen(BasePen):
 
-    def __init__(self, glyphSet, optimise=False):
+    def __init__(self, glyphSet, optimise=False, lineAsCurve=False):
         BasePen.__init__(self, glyphSet)
         self._commands = []
         self._lastCommand = None
         self._lastX = None
         self._lastY = None
         self.optimise = optimise
+        self.lineAsCurve = lineAsCurve  
 
     def _handleAnchor(self):
         """
@@ -57,40 +60,92 @@ class MathImageSVGPathPen(BasePen):
     def _lineTo(self, pt):
         """
         # duplicate point
-        >>> pen = MathImageSVGPathPen(None)
+        >>> pen = MathImageSVGPathPen(None, optimise=True)
         >>> pen.moveTo((10, 10))
         >>> pen.lineTo((10, 10))
         >>> pen._commands
         ['M10 10']
 
+        >>> pen = MathImageSVGPathPen(None, optimise=False)
+        >>> pen.moveTo((10, 10))
+        >>> pen.lineTo((10, 10))
+        >>> pen._commands
+        ['M10 10', 'L10 10']
+
         # vertical line
-        >>> pen = MathImageSVGPathPen(None)
+        >>> pen = MathImageSVGPathPen(None, optimise=True)
         >>> pen.moveTo((10, 10))
         >>> pen.lineTo((10, 0))
         >>> pen._commands
         ['M10 10', 'V0']
 
+        >>> pen = MathImageSVGPathPen(None, optimise=False)
+        >>> pen.moveTo((10, 10))
+        >>> pen.lineTo((10, 0))
+        >>> pen._commands
+        ['M10 10', 'L10 0']
+
+        >>> pen = MathImageSVGPathPen(None, lineAsCurve=True)
+        >>> pen.moveTo((10, 10))
+        >>> pen.lineTo((10, 0))
+        >>> pen._commands
+        ['M10 10', 'C10 10 10 0 10 0']
+
         # horizontal line
-        >>> pen = MathImageSVGPathPen(None)
+        >>> pen = MathImageSVGPathPen(None, optimise=True)
         >>> pen.moveTo((10, 10))
         >>> pen.lineTo((0, 10))
         >>> pen._commands
         ['M10 10', 'H0']
 
+        >>> pen = MathImageSVGPathPen(None, optimise=False)
+        >>> pen.moveTo((10, 10))
+        >>> pen.lineTo((0, 10))
+        >>> pen._commands
+        ['M10 10', 'L0 10']
+
+        >>> pen = MathImageSVGPathPen(None, lineAsCurve=True)
+        >>> pen.moveTo((10, 10))
+        >>> pen.lineTo((0, 10))
+        >>> pen._commands
+        ['M10 10', 'C10 10 0 10 0 10']
+
         # basic
-        >>> pen = MathImageSVGPathPen(None)
+        >>> pen = MathImageSVGPathPen(None, optimise=True)
+        >>> pen.lineTo((70, 80))
+        >>> pen._commands
+        ['L70 80']
+
+        >>> pen = MathImageSVGPathPen(None, optimise=False)
         >>> pen.lineTo((70, 80))
         >>> pen._commands
         ['L70 80']
 
         # basic following a moveto
-        >>> pen = MathImageSVGPathPen(None)
+        >>> pen = MathImageSVGPathPen(None, optimise=True)
         >>> pen.moveTo((0, 0))
         >>> pen.lineTo((10, 10))
         >>> pen._commands
         ['M0 0', ' 10 10']
+
+        >>> pen = MathImageSVGPathPen(None, optimise=False)
+        >>> pen.moveTo((0, 0))
+        >>> pen.lineTo((10, 10))
+        >>> pen._commands
+        ['M0 0', 'L10 10']
+
+        >>> pen = MathImageSVGPathPen(None, lineAsCurve=True)
+        >>> pen.moveTo((0, 0))
+        >>> pen.lineTo((10, 10))
+        >>> pen._commands
+        ['M0 0', 'C0 0 10 10 10 10']
+
         """
         x, y = pt
+        if self.lineAsCurve:
+            # draw straight lines as curves with on-point controls
+            self._curveToOne((self._lastX, self._lastY), (x,y), (x,y))
+            return
         if not self.optimise:
             cmd = "L"
             pts = pointToString(pt)

@@ -1,4 +1,4 @@
-
+# -*- coding: utf-8 -*-
 
 def validate(f):
     names = ['narrow-bold', 'wide-bold', 'narrow-thin', 'wide-thin']

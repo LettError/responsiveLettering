@@ -8,7 +8,7 @@
 			<key>path</key>
 			<string>mathShape/cmd_exportCurrentFont.py</string>
 			<key>preferredName</key>
-			<string>Export</string>
+			<string>Preview and Export</string>
 			<key>shortKey</key>
 			<string></string>
 		</dict>
@@ -16,15 +16,7 @@
 			<key>path</key>
 			<string>mathShape/cmd_prepareNewShape.py</string>
 			<key>preferredName</key>
-			<string>New</string>
-			<key>shortKey</key>
-			<string></string>
-		</dict>
-		<dict>
-			<key>path</key>
-			<string>mathShape/cmd_scalePastedSVGs.py</string>
-			<key>preferredName</key>
-			<string>Scale</string>
+			<string>New Template</string>
 			<key>shortKey</key>
 			<string></string>
 		</dict>
@@ -40,15 +32,17 @@
 	<key>mainScript</key>
 	<string></string>
 	<key>name</key>
-	<string>LTR MathShape</string>
+	<string>Responsive Lettering</string>
 	<key>timeStamp</key>
-	<real>1432921637.825511</real>
+	<real>1455472296.03</real>
 	<key>version</key>
-	<string>1.1</string>
+	<string>1.3</string>
 	<key>com.robofontmechanic.Mechanic</key>
 <dict>
-  <key>repository</key>
-  <string>LettError/responsiveLettering</string>
+	<key>repository</key>
+		<string>LettError/responsiveLettering</string>
+	<key>summary</key>
+		<string>Tools for previewing, editing, generating responsive lettering with svg/html/css/javascript.</string>
 </dict>
 </dict>
 </plist>
