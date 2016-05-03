@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<glyph name="I" format="1">
+<glyph name="wide-thin" format="1">
   <advance width="2269"/>
-  <unicode hex="0049"/>
   <outline>
     <contour>
       <point x="50" y="-3" type="line"/>
@@ -29,20 +28,20 @@
     </contour>
     <contour>
       <point x="788" y="398" type="line"/>
-      <point x="841.109761177" y="482.789267844"/>
+      <point x="841" y="483"/>
       <point x="929" y="506"/>
       <point x="1012" y="506" type="curve" smooth="yes"/>
       <point x="1140" y="506"/>
-      <point x="1207.7151084" y="437.877709982"/>
+      <point x="1208" y="438"/>
       <point x="1202" y="295" type="curve" smooth="yes"/>
       <point x="1190" y="-5" type="line"/>
       <point x="1118" y="-7" type="line"/>
       <point x="1135" y="281" type="line" smooth="yes"/>
-      <point x="1141.69257439" y="394.380083865"/>
+      <point x="1142" y="394"/>
       <point x="1109" y="448"/>
       <point x="993" y="448" type="curve" smooth="yes"/>
       <point x="898" y="448"/>
-      <point x="847.80911014" y="431.057063247"/>
+      <point x="848" y="431"/>
       <point x="785" y="349" type="curve"/>
     </contour>
     <contour>
@@ -62,11 +61,11 @@
       <point x="1650" y="720" type="line"/>
       <point x="1721" y="715" type="line"/>
       <point x="1697" y="74" type="line"/>
-      <point x="1712.1601268" y="57.6737096028"/>
+      <point x="1712" y="58"/>
       <point x="1803" y="50"/>
       <point x="1875" y="51" type="curve" smooth="yes"/>
       <point x="1960" y="53"/>
-      <point x="2143.0" y="78.5192307692"/>
+      <point x="2143" y="79"/>
       <point x="2143" y="263" type="curve" smooth="yes"/>
       <point x="2143" y="419"/>
       <point x="2028" y="438"/>
@@ -79,7 +78,7 @@
       <point x="1855" y="502"/>
       <point x="1932" y="502" type="curve" smooth="yes"/>
       <point x="2117" y="502"/>
-      <point x="2208.0" y="418.422594142"/>
+      <point x="2208" y="418"/>
       <point x="2208" y="267" type="curve" smooth="yes"/>
       <point x="2208" y="25"/>
       <point x="1984" y="-11"/>
@@ -88,4 +87,78 @@
       <point x="1657" y="11"/>
     </contour>
   </outline>
+  <lib>
+    <dict>
+      <key>com.typemytype.robofont.layerData</key>
+      <dict>
+        <key>bounds</key>
+        <dict>
+          <key>anchors</key>
+          <array>
+          </array>
+          <key>components</key>
+          <array>
+          </array>
+          <key>contours</key>
+          <array>
+            <dict>
+              <key>points</key>
+              <array>
+                <dict>
+                  <key>segmentType</key>
+                  <string>line</string>
+                  <key>smooth</key>
+                  <false/>
+                  <key>x</key>
+                  <integer>0</integer>
+                  <key>y</key>
+                  <real>-250.0</real>
+                </dict>
+                <dict>
+                  <key>segmentType</key>
+                  <string>line</string>
+                  <key>smooth</key>
+                  <false/>
+                  <key>x</key>
+                  <integer>2269</integer>
+                  <key>y</key>
+                  <real>-250.0</real>
+                </dict>
+                <dict>
+                  <key>segmentType</key>
+                  <string>line</string>
+                  <key>smooth</key>
+                  <false/>
+                  <key>x</key>
+                  <integer>2269</integer>
+                  <key>y</key>
+                  <real>750.0</real>
+                </dict>
+                <dict>
+                  <key>segmentType</key>
+                  <string>line</string>
+                  <key>smooth</key>
+                  <false/>
+                  <key>x</key>
+                  <integer>0</integer>
+                  <key>y</key>
+                  <real>750.0</real>
+                </dict>
+              </array>
+            </dict>
+          </array>
+          <key>lib</key>
+          <dict>
+          </dict>
+          <key>name</key>
+          <string>wide-thin</string>
+          <key>unicodes</key>
+          <array>
+          </array>
+          <key>width</key>
+          <integer>2269</integer>
+        </dict>
+      </dict>
+    </dict>
+  </lib>
 </glyph>

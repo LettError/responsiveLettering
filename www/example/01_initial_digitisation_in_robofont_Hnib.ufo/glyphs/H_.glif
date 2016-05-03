@@ -88,30 +88,4 @@
       <point x="887" y="11"/>
     </contour>
   </outline>
-  <lib>
-    <dict>
-      <key>com.typemytype.robofont.image</key>
-      <dict>
-        <key>brightness</key>
-        <real>0.45409148931503296</real>
-        <key>contrast</key>
-        <real>1.0386598110198975</real>
-        <key>path</key>
-        <string>/Users/erik/Jobs/20160503 ISIA Responsive/00_Hnib_original_scan.jpg</string>
-        <key>saturation</key>
-        <real>1.0</real>
-        <key>sharpness</key>
-        <real>0.4000000059604645</real>
-        <key>transform</key>
-        <array>
-          <real>1.213208401764339</real>
-          <real>-0.027538049178642936</real>
-          <real>0.027538049178642936</real>
-          <real>1.213208401764339</real>
-          <real>-86.39551300647904</real>
-          <real>-168.96334977274924</real>
-        </array>
-      </dict>
-    </dict>
-  </lib>
 </glyph>
