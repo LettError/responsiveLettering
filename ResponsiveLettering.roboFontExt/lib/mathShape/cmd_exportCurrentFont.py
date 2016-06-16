@@ -175,9 +175,14 @@ class ExportUI(object):
     def shapeColorWellCallback(self, sender):
         # update the color from the colorwell
         clr = sender.get()
-        red = clr.redComponent()
-        grn = clr.greenComponent()
-        blu = clr.blueComponent()
+        try:
+            red = clr.redComponent()
+            grn = clr.greenComponent()
+            blu = clr.blueComponent()
+        except:
+            red = clr.whiteComponent()
+            grn = red
+            blu = red
         alf = clr.alphaComponent()
         self.setShapeColor((red, grn, blu, alf))        # set the color in the well
         self.cbMakePreview(self)  # update the preview      
@@ -185,9 +190,14 @@ class ExportUI(object):
     def backgroundColorWellCallback(self, sender):
         # update the color from the colorwell
         clr = sender.get()
-        red = clr.redComponent()
-        grn = clr.greenComponent()
-        blu = clr.blueComponent()
+        try:
+            red = clr.redComponent()
+            grn = clr.greenComponent()
+            blu = clr.blueComponent()
+        except:
+            red = clr.whiteComponent()
+            grn = red
+            blu = red
         alf = clr.alphaComponent()
         self.setBackgroundColor((red, grn, blu, alf))        # set the color in the well
         self.cbMakePreview(self)  # update the preview      
@@ -232,9 +242,6 @@ def exportCurrentFont(exportFont, masterNames, folderName, extrapolateMin=0, ext
     tags = []       # the svg tags as they are produced
     exportFont.save()
     path = exportFont.path
-    checkBoundsLayer = False
-    if 'bounds' in exportFont.layerOrder:
-        checkBoundsLayer = True
     root = os.path.dirname(exportFont.path)
     if saveFiles:
         # if we want to export to a real folder
