@@ -242,9 +242,6 @@ def exportCurrentFont(exportFont, masterNames, folderName, extrapolateMin=0, ext
     tags = []       # the svg tags as they are produced
     exportFont.save()
     path = exportFont.path
-    checkBoundsLayer = False
-    if 'bounds' in exportFont.layerOrder:
-        checkBoundsLayer = True
     root = os.path.dirname(exportFont.path)
     if saveFiles:
         # if we want to export to a real folder
