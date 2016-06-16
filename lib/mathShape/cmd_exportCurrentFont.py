@@ -175,9 +175,14 @@ class ExportUI(object):
     def shapeColorWellCallback(self, sender):
         # update the color from the colorwell
         clr = sender.get()
-        red = clr.redComponent()
-        grn = clr.greenComponent()
-        blu = clr.blueComponent()
+        try:
+            red = clr.redComponent()
+            grn = clr.greenComponent()
+            blu = clr.blueComponent()
+        except:
+            red = clr.whiteComponent()
+            grn = red
+            blu = red
         alf = clr.alphaComponent()
         self.setShapeColor((red, grn, blu, alf))        # set the color in the well
         self.cbMakePreview(self)  # update the preview      
@@ -185,9 +190,14 @@ class ExportUI(object):
     def backgroundColorWellCallback(self, sender):
         # update the color from the colorwell
         clr = sender.get()
-        red = clr.redComponent()
-        grn = clr.greenComponent()
-        blu = clr.blueComponent()
+        try:
+            red = clr.redComponent()
+            grn = clr.greenComponent()
+            blu = clr.blueComponent()
+        except:
+            red = clr.whiteComponent()
+            grn = red
+            blu = red
         alf = clr.alphaComponent()
         self.setBackgroundColor((red, grn, blu, alf))        # set the color in the well
         self.cbMakePreview(self)  # update the preview      
