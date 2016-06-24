@@ -143,6 +143,8 @@ class ExportUI(object):
             g = f[n]
             if hasBounds:
                 gb = g.getLayer('bounds')
+                if gb.box is None:
+                    continue
                 xMin, yMin, xMax, yMax = gb.box
                 width = xMax-xMin
                 height = yMax-yMin
@@ -172,23 +174,30 @@ class ExportUI(object):
                     points +=1
         return contours, points
 
+    def _convertColor(self, clr):
+        colorSpaceName = clr.colorSpaceName()
+        red,grn,blu,alf = 0,0,0,1
+        if colorSpaceName in ["NSCalibratedWhiteColorSpace", "NSCalibratedBlackColorSpace"]:
+            red = grn = blu = clr.whiteComponent()
+            alf = clr.alphaComponent()
+        elif colorSpaceName in ["NSDeviceRGBColorSpace", "NSCustomColorSpace"]:
+            red = clr.redComponent()
+            grn = clr.greenComponent()
+            blu = clr.blueComponent()
+            alf = clr.alphaComponent()
+        return red,grn,blu,alf
+
     def shapeColorWellCallback(self, sender):
         # update the color from the colorwell
-        clr = sender.get()
-        red = clr.redComponent()
-        grn = clr.greenComponent()
-        blu = clr.blueComponent()
-        alf = clr.alphaComponent()
-        self.setShapeColor((red, grn, blu, alf))        # set the color in the well
+        # check colorspace.
+        red, grn, blu, alf = self._convertColor(sender.get())
+        self.setShapeColor((red, grn, blu, alf))   # set the color in the well
         self.cbMakePreview(self)  # update the preview      
 
     def backgroundColorWellCallback(self, sender):
         # update the color from the colorwell
         clr = sender.get()
-        red = clr.redComponent()
-        grn = clr.greenComponent()
-        blu = clr.blueComponent()
-        alf = clr.alphaComponent()
+        red, grn, blu, alf = self._convertColor(sender.get())
         self.setBackgroundColor((red, grn, blu, alf))        # set the color in the well
         self.cbMakePreview(self)  # update the preview      
     

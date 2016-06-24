@@ -1,6 +1,14 @@
-# Example Project
+# Hnib Example Project
 
-This document describes the steps in a small example project. There are many ways of doing this and the following steps are only an indication of how to work.
+This document describes the necessary steps for a responsive lettering thing in a small example project. There are many ways of doing this and the following steps are only an indication of how to work.
+
+These tools currently only work for RoboFont.
+
+[RoboFont](http://doc.robofont.com)
+
+[Responsive Lettering project on GitHub.](https://github.com/LettError/responsiveLettering)
+
+## Steps in this document:
 
 * sketch
 * first digitisation
