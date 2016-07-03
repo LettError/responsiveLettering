@@ -103,7 +103,7 @@ MathShape.prototype.setFill = function(color, opacity){
 	// set the preferred color and opacity
 	this.shapeFill = color;
 	if(opacity!=undefined){
-		self.shapeFillOpacity = opacity;
+		this.shapeFillOpacity = opacity;
 	}
 }
 MathShape.prototype.setAlignment = function(alignment){
