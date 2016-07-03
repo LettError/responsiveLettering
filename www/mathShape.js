@@ -46,6 +46,8 @@ function MathShape(elementId, miURL){
 	this.strokeWidth = 2		// default stroke width
 	this.parentWidth = 0;		// whatever the latest width we know of the parent
 	this.parentHeight = 0;		// whatever the latest height we know of the parent
+	this.breatheInterval = 0.5;	// increment the breath value
+	this.breatheFactor = 0;	// current breathe value
 }
 MathShape.prototype.loadLocal = function(){
 	// load the data for this mathShape from the stuff available in this page. 
@@ -91,6 +93,7 @@ MathShape.prototype.loadFromWeb = function(){
 MathShape.prototype.breathe = function(factor){
 	//  redraw with the current size
 	// animate the other factor
+	var newFactor = 0.5*Math.sin(breathShape*Math.PI)+0.5;
 	this.playFactor = factor;
 	if(this.svgLoaded==true){
 		this.calculateFactors();
@@ -100,7 +103,7 @@ MathShape.prototype.setFill = function(color, opacity){
 	// set the preferred color and opacity
 	this.shapeFill = color;
 	if(opacity!=undefined){
-		self.shapeFillOpacity = opacity;
+		this.shapeFillOpacity = opacity;
 	}
 }
 MathShape.prototype.setAlignment = function(alignment){
@@ -150,34 +153,36 @@ MathShape.prototype.calculateShapeTwoByTwo = function(){
 		return;
 	}
 	var ptLength = this.masterData[0].length;
+	var _sf = this.sizeFactor;
+	var _pf = this.playFactor;
 	for (var i = 0; i < ptLength; i++) {
 		var newCommand = [this.masterData[0][i][0]]; // add the command
 		// iterate through the command args
 		switch(this.masterData[0][i][0]){
 			case 'H':
 				// handle horizontal segment
-				var x1 = this.ip(this.masterData[0][i][1], this.masterData[1][i][1], this.sizeFactor);
-				var x2 = this.ip(this.masterData[2][i][1], this.masterData[3][i][1], this.sizeFactor);
-				var x = this.ip(x1, x2, this.playFactor);
+				var x1 = this.ip(this.masterData[0][i][1], this.masterData[1][i][1], _sf);
+				var x2 = this.ip(this.masterData[2][i][1], this.masterData[3][i][1], _sf);
+				var x = this.ip(x1, x2, _pf);
 				newCommand.push(x);
 				break;
 			case 'V':
 				// handle vertical segment
-				var y1 = this.ip(this.masterData[0][i][1], this.masterData[1][i][1], this.sizeFactor);
-				var y2 = this.ip(this.masterData[2][i][1], this.masterData[3][i][1], this.sizeFactor);
-				var y = this.ip(y1, y2, this.playFactor);
+				var y1 = this.ip(this.masterData[0][i][1], this.masterData[1][i][1], _sf);
+				var y2 = this.ip(this.masterData[2][i][1], this.masterData[3][i][1], _sf);
+				var y = this.ip(y1, y2, _pf);
 				newCommand.push(y);
 				break;
 			case 'L':
 			default:
 				// handle all the other segments
 				for (var args=1; args<this.masterData[0][i].length-1; args+=2){
-					var x1 = this.ip(this.masterData[0][i][args], this.masterData[1][i][args], this.sizeFactor);
-					var y1 = this.ip(this.masterData[0][i][args+1], this.masterData[1][i][args+1], this.sizeFactor);
-					var x2 = this.ip(this.masterData[2][i][args], this.masterData[3][i][args], this.sizeFactor);
-					var y2 = this.ip(this.masterData[2][i][args+1], this.masterData[3][i][args+1], this.sizeFactor);
-					var x = this.ip(x1, x2, this.playFactor);
-					var y = this.ip(y1, y2, this.playFactor);
+					var x1 = this.ip(this.masterData[0][i][args], this.masterData[1][i][args], _sf);
+					var y1 = this.ip(this.masterData[0][i][args+1], this.masterData[1][i][args+1], _sf);
+					var x2 = this.ip(this.masterData[2][i][args], this.masterData[3][i][args], _sf);
+					var y2 = this.ip(this.masterData[2][i][args+1], this.masterData[3][i][args+1], _sf);
+					var x = this.ip(x1, x2, _pf);
+					var y = this.ip(y1, y2, _pf);
 					newCommand.push(x);
 					newCommand.push(y);
 				};
