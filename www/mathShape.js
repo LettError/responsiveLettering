@@ -1,9 +1,4 @@
-
-
-
-// edits 20160115
-
-// mathImage object
+// mathShape object
 // takes 4 names of svg files
 // loads them with snap
 // then makes 2 axis interpolation
@@ -13,7 +8,7 @@
 
 // With thanks to Jérémie Hornus, Nina Stössinger, Nick Sherman, Andrew Johnson, Petr van Blokland and Gerrit Noordzij.
 
-// For the time being, for practical reasons, this is (c) erik van blokland 2015
+// For the time being, for practical reasons, this is (c) erik van blokland 2016
 // Assume this code is a proof of concept and a nice demo. No guarantee for how this code
 // holds up under greater loads, heavy files, production or otherwise demanding environments. 
 
@@ -73,6 +68,7 @@ MathShape.prototype.loadFromWeb = function(){
 	var self = this;	// http://stackoverflow.com/questions/2325866/assigning-scope-amongst-jquery-getjson-and-a-js-class
 	var miPath = this.root+"/files.json";
 
+	// jQuery
 	jQuery.getJSON(miPath, {}, function(data){
 		self.masterPaths = data['files'];
 		self.masterBounds = data['sizebounds'];
@@ -86,6 +82,7 @@ MathShape.prototype.loadFromWeb = function(){
 		self.loadNextMaster();
 	});
 
+	// jQuery
 	$(this.elementId).click(function callbackClick(data){
 		$(this.elementId).attr("height", "100%")
 		self.breathe(0);
@@ -120,6 +117,7 @@ MathShape.prototype.fc = function(a, b, c){
 };
 MathShape.prototype.getParentSize = function(){
 	// obtain the height and width of the parent
+	// jQuery
 	return [$(this.elementId).parent().width(), $(this.elementId).parent().height()];
 }
 MathShape.prototype.loadNextMaster = function(){
@@ -199,9 +197,11 @@ MathShape.prototype.calculateShapeTwoByTwo = function(){
 		switch(this.alignment){
 			// don't bother calculating the offset, just let our parent know the alignment
 			case 'center':
+				// jQuery
 				$(this.elementId).parent().attr('align', 'center');
 				break;
 			case 'right':
+				// jQuery
 				$(this.elementId).parent().attr('align', 'right');
 				break;
 		}
@@ -258,6 +258,7 @@ MathShape.prototype.calculateFactors = function(){
 	//	That means that we only have to calculate the appropriate width to fill the box.
 	//	Take the width / height ratio from the parent, then calculate
 	//	the factors needed for the image to get the same ratio. 
+	// jQuery
 	var width = $( this.elementId ).parent().outerWidth();
 	var height = $( this.elementId ).parent().outerHeight();
 	this.parentWidth = width;
