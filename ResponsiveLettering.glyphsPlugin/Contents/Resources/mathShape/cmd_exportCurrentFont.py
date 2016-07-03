@@ -4,14 +4,15 @@ import os
 import json
 import vanilla
 
-from mojo.UI import *
+#from mojo.UI import *
 from AppKit import NSColor
-
+from robofab.world import CurrentFont
 from exportTools import makeSVGShape, makeMaster
 import makePage
 reload(makePage)
 from makePage import PageMaker
-
+#from lib.scripting.extensionTools import HTMLView
+from objectsGS import HTMLView
 import tempfile
 
 class ExportUI(object):
@@ -130,26 +131,22 @@ class ExportUI(object):
             return
         names = f.keys()
         names.sort()
-        layers = f.layerOrder
-        if 'bounds' in layers:
-            hasBounds = "yup"
-        else:
-            hasBounds = "nope"
+        # layers = f.layerOrder
+        # if 'bounds' in layers:
+        #     hasBounds = "yup"
+        # else:
+        hasBounds = "nope"
         for n in names:
             if n in self.masterNames:
                 status = True
             else:
                 continue
             g = f[n]
-            if hasBounds:
-                gb = g.getLayer('bounds')
-                if gb.box is None:
-                    width = "-"
-                    height = "-"
-                else:
-                    xMin, yMin, xMax, yMax = gb.box
-                    width = xMax-xMin
-                    height = yMax-yMin
+            gb = g.getLayer('bounds')
+            if gb:
+                xMin, yMin, xMax, yMax = gb.box
+                width = xMax-xMin
+                height = yMax-yMin
             else:
                 width = g.width
                 height = None
@@ -224,7 +221,7 @@ class ExportUI(object):
         # export the mathshape
         root, tags, metaData = exportCurrentFont(f, self.masterNames, proposedName, self.extrapolateMinValue, self.extrapolateMaxValue)
         outputPath = os.path.join(root, "preview_%s.html"%proposedName)
-        resourcesPath = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "Resources")
+        resourcesPath = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "Resources/resources")
         outputPath = os.path.join(root, "preview_%s.html"%proposedName)
         pm = PageMaker(resourcesPath, os.path.join(root, proposedName),
             outputPath,
