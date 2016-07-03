@@ -46,8 +46,9 @@ function MathShape(elementId, miURL){
 	this.strokeWidth = 2		// default stroke width
 	this.parentWidth = 0;		// whatever the latest width we know of the parent
 	this.parentHeight = 0;		// whatever the latest height we know of the parent
-	this.breatheInterval = 0.5;	// increment the breath value
+	this.breatheInterval = 0.02;	// increment the breath value
 	this.breatheFactor = 0;	// current breathe value
+	self.designspace = "twobytwo";
 }
 MathShape.prototype.loadLocal = function(){
 	// load the data for this mathShape from the stuff available in this page. 
@@ -56,7 +57,11 @@ MathShape.prototype.loadLocal = function(){
 	this.masterBounds = data['sizebounds'];
 	this.extrapolateMin = data['extrapolatemin'];
 	this.extrapolateMax = data['extrapolatemax'];
-	this.designspace = "twobyone";	//data['designspace'];
+	this.designspace = data['designspace'];
+	if(self.designspace == undefined){
+		// if we have no designspace values, then assume it is two by two
+		self.designspace = "twobytwo";
+	}
 	this.onLoadedLocal(Snap('#narrow-thin'));
 	this.onLoadedLocal(Snap('#wide-thin'));
 	this.onLoadedLocal(Snap('#narrow-bold'));
@@ -76,10 +81,10 @@ MathShape.prototype.loadFromWeb = function(){
 		self.masterBounds = data['sizebounds'];
 		self.extrapolateMin = data['extrapolatemin'];
 		self.extrapolateMax = data['extrapolatemax'];
-		self.designspace = "twobyone";	//data['designspace'];
+		self.designspace = data['designspace'];
 		if(self.designspace == undefined){
 			// if we have no designspace values, then assume it is two by two
-			self.designspace = "twobyone";	//"twobytwo";
+			self.designspace = "twobytwo";
 		}
 		self.loadNextMaster();
 	});
@@ -87,14 +92,15 @@ MathShape.prototype.loadFromWeb = function(){
 	// jQuery
 	$(this.elementId).click(function callbackClick(data){
 		$(this.elementId).attr("height", "100%")
-		self.breathe(0);
+		self.breatheFactor = 0;
 	});
 }
 MathShape.prototype.breathe = function(factor){
 	//  redraw with the current size
 	// animate the other factor
-	var newFactor = 0.5*Math.sin(breathShape*Math.PI)+0.5;
-	this.playFactor = factor;
+	this.breatheFactor+=this.breatheInterval;
+	this.playFactor = 0.5*Math.sin(this.breatheFactor*Math.PI)+0.5;
+	//this.playFactor = factor;
 	if(this.svgLoaded==true){
 		this.calculateFactors();
 	}
@@ -146,6 +152,7 @@ MathShape.prototype.calculateSize = function(){
 	return [currentWidth, currentHeight];
 }
 MathShape.prototype.calculateShapeTwoByTwo = function(){
+	// calculate the shape based on 4 masters
 	var resultPath = [];
 	// when all masters are loaded
 	if(this.masterData[0]==null){
@@ -190,6 +197,51 @@ MathShape.prototype.calculateShapeTwoByTwo = function(){
 		};
 		resultPath.push(newCommand);
 	};
+	this.finalizeShape(resultPath);	// make it appear
+}
+MathShape.prototype.calculateShapeTwoByOne = function(){
+	// calculate the shape based on 2 masters
+	var resultPath = [];
+	// when all masters are loaded
+	if(this.masterData[0]==null){
+		// still loading it seems
+		return;
+	}
+	var ptLength = this.masterData[0].length;
+	var _sf = this.sizeFactor;
+	var _pf = this.playFactor;
+	for (var i = 0; i < ptLength; i++) {
+		var newCommand = [this.masterData[0][i][0]]; // add the command
+		// iterate through the command args
+		switch(this.masterData[0][i][0]){
+			case 'H':
+				// handle horizontal segment
+				var x = this.ip(this.masterData[0][i][1], this.masterData[1][i][1], _sf);
+				newCommand.push(x);
+				break;
+			case 'V':
+				// handle vertical segment
+				var y = this.ip(this.masterData[0][i][1], this.masterData[1][i][1], _sf);
+				newCommand.push(y);
+				break;
+			case 'L':
+			default:
+				// handle all the other segments
+				for (var args=1; args<this.masterData[0][i].length-1; args+=2){
+					var x = this.ip(this.masterData[0][i][args], this.masterData[1][i][args], _sf);
+					var y = this.ip(this.masterData[0][i][args+1], this.masterData[1][i][args+1], _sf);
+					newCommand.push(x);
+					newCommand.push(y);
+				};
+				break;
+		};
+		resultPath.push(newCommand);
+	};
+	this.finalizeShape(resultPath);	// make it appear
+}
+MathShape.prototype.finalizeShape = function(resultPath){
+	// this is called after the shape is calculated.
+	// Can be used after different calculation methods.
 	this.snap.clear()
 	var newPath = this.snap.path(resultPath);
 	var bounds = Snap.path.getBBox(newPath);
@@ -287,7 +339,14 @@ MathShape.prototype.calculateFactors = function(){
 	// keep the factors within 0 and 1
 	// factor 2 is controlled by other events.
 	this.sizeFactor = Math.min(this.extrapolateMax, Math.max(this.extrapolateMin, this.sizeFactor));
-	this.calculateShapeTwoByTwo();
+	switch(self.designspace){
+		case "twobytwo":
+			this.calculateShapeTwoByTwo();
+			break;
+		case "twobyone":
+			this.calculateShapeTwoByOne();
+			break;
+	}
 }
 
 // done
