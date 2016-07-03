@@ -144,10 +144,12 @@ class ExportUI(object):
             if hasBounds:
                 gb = g.getLayer('bounds')
                 if gb.box is None:
-                    continue
-                xMin, yMin, xMax, yMax = gb.box
-                width = xMax-xMin
-                height = yMax-yMin
+                    width = "-"
+                    height = "-"
+                else:
+                    xMin, yMin, xMax, yMax = gb.box
+                    width = xMax-xMin
+                    height = yMax-yMin
             else:
                 width = g.width
                 height = None
