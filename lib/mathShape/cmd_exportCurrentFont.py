@@ -15,14 +15,21 @@ from makePage import PageMaker
 import tempfile
 
 class ExportUI(object):
+    designSpaceModelLibKey = "com.letterror.mathshape.designspace"
     shapeColorLibKey = "com.letterror.mathshape.preview.shapecolor"
     backgroundColorLibKey = "com.letterror.mathshape.preview.bgcolor"
     preferredFilenameLibKey = "com.letterror.mathshape.filename"
-    masterNames = ['narrow-thin', 'wide-thin', 'narrow-bold', 'wide-bold']
+    animatingModels = ["twobytwo"]
     def __init__(self):
         f = CurrentFont()
         if f is None:
             return
+        self.designSpaceModel = f.lib.get(self.designSpaceModelLibKey, "twobytwo")
+        #print "self.designSpaceModel", self.designSpaceModel
+        if self.designSpaceModel == "twobytwo":
+            self.masterNames = ['narrow-thin', 'wide-thin', 'narrow-bold', 'wide-bold']
+        elif self.designSpaceModel == "twobyone":
+            self.masterNames = ['narrow-thin', 'wide-thin']
         self.shapeColor = None
         self.backgroundColor = None
         self.extrapolateMinValue = 0
@@ -221,15 +228,20 @@ class ExportUI(object):
         if f is None:
             return
         proposedName = self.proposeFilename(f)
+        if self.designSpaceModel in self.animatingModels:
+            needsAnimateCode = True
+        else:
+            needsAnimateCode = False
         # export the mathshape
-        root, tags, metaData = exportCurrentFont(f, self.masterNames, proposedName, self.extrapolateMinValue, self.extrapolateMaxValue)
+        root, tags, metaData = exportCurrentFont(f, self.masterNames, proposedName, self.extrapolateMinValue, self.extrapolateMaxValue, model=self.designSpaceModel)
         outputPath = os.path.join(root, "preview_%s.html"%proposedName)
         resourcesPath = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "Resources")
         outputPath = os.path.join(root, "preview_%s.html"%proposedName)
         pm = PageMaker(resourcesPath, os.path.join(root, proposedName),
             outputPath,
             shapeColor= self.shapeColor,
-            bgColor = self.backgroundColor
+            bgColor = self.backgroundColor,
+            animate = needsAnimateCode
             )
         return outputPath
     
@@ -239,7 +251,7 @@ class ExportUI(object):
         return name
 
 
-def exportCurrentFont(exportFont, masterNames, folderName, extrapolateMin=0, extrapolateMax=1, saveFiles=True):
+def exportCurrentFont(exportFont, masterNames, folderName, extrapolateMin=0, extrapolateMax=1, saveFiles=True, model="twobytwo"):
     tags = []       # the svg tags as they are produced
     exportFont.save()
     path = exportFont.path
@@ -273,7 +285,7 @@ def exportCurrentFont(exportFont, masterNames, folderName, extrapolateMin=0, ext
     metaData = dict(sizebounds=allBounds, files=[folderName+"/%s.svg"%n for n in masterNames])
     metaData['extrapolatemin']=extrapolateMin
     metaData['extrapolatemax']=extrapolateMax
-    metaData['designspace']='twobytwo'
+    metaData['designspace']=model
     if saveFiles:
         jsonFile = open(jsonPath, 'w')
         jsonFile.write(json.dumps(metaData))
