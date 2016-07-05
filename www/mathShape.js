@@ -48,7 +48,7 @@ function MathShape(elementId, miURL){
 	this.parentHeight = 0;		// whatever the latest height we know of the parent
 	this.breatheInterval = 0.02;	// increment the breath value
 	this.breatheFactor = 0;	// current breathe value
-	self.designspace = "twobytwo";
+	this.designspace = "twobytwo";
 }
 MathShape.prototype.loadLocal = function(){
 	// load the data for this mathShape from the stuff available in this page. 
@@ -58,14 +58,22 @@ MathShape.prototype.loadLocal = function(){
 	this.extrapolateMin = data['extrapolatemin'];
 	this.extrapolateMax = data['extrapolatemax'];
 	this.designspace = data['designspace'];
-	if(self.designspace == undefined){
+	if(this.designspace == undefined){
 		// if we have no designspace values, then assume it is two by two
-		self.designspace = "twobytwo";
+		this.designspace = "twobytwo";
 	}
-	this.onLoadedLocal(Snap('#narrow-thin'));
-	this.onLoadedLocal(Snap('#wide-thin'));
-	this.onLoadedLocal(Snap('#narrow-bold'));
-	this.onLoadedLocal(Snap('#wide-bold'));
+	switch(this.designspace){
+		case "twobytwo":
+			this.onLoadedLocal(Snap('#narrow-thin'));
+			this.onLoadedLocal(Snap('#wide-thin'));
+			this.onLoadedLocal(Snap('#narrow-bold'));
+			this.onLoadedLocal(Snap('#wide-bold'));
+			break;
+		case "twobyone":
+			this.onLoadedLocal(Snap('#narrow-thin'));
+			this.onLoadedLocal(Snap('#wide-thin'));
+			break;
+	}
 	this.svgLoaded = true;
 	this.calculateFactors();
 }
@@ -92,7 +100,7 @@ MathShape.prototype.loadFromWeb = function(){
 	// jQuery
 	$(this.elementId).click(function callbackClick(data){
 		$(this.elementId).attr("height", "100%")
-		self.breatheFactor = 0;
+		this.breatheFactor = 0;
 	});
 }
 MathShape.prototype.breathe = function(factor){
@@ -216,22 +224,18 @@ MathShape.prototype.calculateShapeTwoByOne = function(){
 		switch(this.masterData[0][i][0]){
 			case 'H':
 				// handle horizontal segment
-				var x = this.ip(this.masterData[0][i][1], this.masterData[1][i][1], _sf);
-				newCommand.push(x);
+				newCommand.push(this.ip(this.masterData[0][i][1], this.masterData[1][i][1], _sf));
 				break;
 			case 'V':
 				// handle vertical segment
-				var y = this.ip(this.masterData[0][i][1], this.masterData[1][i][1], _sf);
-				newCommand.push(y);
+				newCommand.push(this.ip(this.masterData[0][i][1], this.masterData[1][i][1], _sf));
 				break;
 			case 'L':
 			default:
 				// handle all the other segments
 				for (var args=1; args<this.masterData[0][i].length-1; args+=2){
-					var x = this.ip(this.masterData[0][i][args], this.masterData[1][i][args], _sf);
-					var y = this.ip(this.masterData[0][i][args+1], this.masterData[1][i][args+1], _sf);
-					newCommand.push(x);
-					newCommand.push(y);
+					newCommand.push(this.ip(this.masterData[0][i][args], this.masterData[1][i][args], _sf));
+					newCommand.push(this.ip(this.masterData[0][i][args+1], this.masterData[1][i][args+1], _sf));
 				};
 				break;
 		};
@@ -339,7 +343,7 @@ MathShape.prototype.calculateFactors = function(){
 	// keep the factors within 0 and 1
 	// factor 2 is controlled by other events.
 	this.sizeFactor = Math.min(this.extrapolateMax, Math.max(this.extrapolateMin, this.sizeFactor));
-	switch(self.designspace){
+	switch(this.designspace){
 		case "twobytwo":
 			this.calculateShapeTwoByTwo();
 			break;
