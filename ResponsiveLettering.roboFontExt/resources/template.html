@@ -40,6 +40,7 @@
 		// set fill colors
 		myMathShape.setAlignment("center");
 		myMathShape.setFill(/*shapeFillColor*/);
+		myMathShape.calculateFactors();
 		// recalculate the image factors when resizing
 		$(window).resize(function() {
 			myMathShape.calculateFactors();
