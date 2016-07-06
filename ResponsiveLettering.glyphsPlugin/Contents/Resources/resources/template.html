@@ -40,12 +40,16 @@
 		// set fill colors
 		myMathShape.setAlignment("center");
 		myMathShape.setFill(/*shapeFillColor*/);
-		myMathShape.calculateFactors();
 		// recalculate the image factors when resizing
 		$(window).resize(function() {
 			myMathShape.calculateFactors();
 		});
-		// animateBreatheCode
+		// make the images breathe.
+		// entirely optional but definitely entertaining
+		setInterval(function () { 
+			breathShape += 0.04;
+			myMathShape.breathe(0.5*Math.sin(breathShape*Math.PI)+0.5)
+		}, 50);
 	</script>
 
 </body>

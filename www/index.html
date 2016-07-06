@@ -108,7 +108,7 @@ Ideas and code very much in debt to <a href="http://www.typosansplomb.com/Respon
 		var myMathShape = new MathShape("#mathShape1", "example_ms");
 
 		myMathShape.loadFromWeb();
-		myMathShape.setFill("#acff00");
+		myMathShape.setFill("#ffff00", 0.25);
 		myMathShape.setAlignment("right");
 
 		// recalculate the image factors when resizing
@@ -119,8 +119,7 @@ Ideas and code very much in debt to <a href="http://www.typosansplomb.com/Respon
 		// make the images breathe.
 		// entirely optional but definitely entertaining
 		setInterval(function () { 
-		breathShape += 0.04;
-		myMathShape.breathe(0.5*Math.sin(breathShape*Math.PI)+0.5)
+		myMathShape.breathe();
 		}, 50);
 	</script>
 

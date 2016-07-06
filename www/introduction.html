@@ -50,6 +50,15 @@ There are many tools that can create SVG files. In order to be able to interpola
 By using the included RoboFontExtension you can draw the different masters as separate glyphs and then export them the right way. The extension also offers a small preview window that can be resized. You can also use the extension to create a new template UFO that has the right glyphnames and sizes. Your drawings do not need to fit these default sizes, but you must make sure both narrows and both wides are the same. The extension will tell you something is wrong when exporting.
 </p>
 
+<h2>Designspaces</h2>
+<p>
+As of version 1.6 it is possible to choose from 2 different designspaces. In the <b>New Template</b> window the options are in the popup button. 
+<ul><li><b>Responsive + animation (4 masters)</b>: this is the "classic" Responsive Lettering designspace. One axis that responds to the box, the second axis can be used for animation. Like the breathing effects. Requires 4 drawings.</li>
+<li><b>Only responsive (2 masters)</b>: a single axis designspace that only responds to the box. For shapes that do not need animation this will reduce the number of SGV files that are downloaded. In this case only the narrow-thin and wide-thin glyphs are used. Why are these still called "thin" you may ask? Well, otherwise I need to come up with a new namingscheme.</li>
+</ul>
+
+<!--  -->
+</p>
 <h2>Files</h2>
 <p>
 <img src="img/mathShape.jpg" height="435" width="471">

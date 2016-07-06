@@ -1,4 +1,9 @@
-// mathShape object
+
+
+
+// edits 20160115
+
+// mathImage object
 // takes 4 names of svg files
 // loads them with snap
 // then makes 2 axis interpolation
@@ -8,7 +13,7 @@
 
 // With thanks to Jérémie Hornus, Nina Stössinger, Nick Sherman, Andrew Johnson, Petr van Blokland and Gerrit Noordzij.
 
-// For the time being, for practical reasons, this is (c) erik van blokland 2016
+// For the time being, for practical reasons, this is (c) erik van blokland 2015
 // Assume this code is a proof of concept and a nice demo. No guarantee for how this code
 // holds up under greater loads, heavy files, production or otherwise demanding environments. 
 
@@ -46,9 +51,6 @@ function MathShape(elementId, miURL){
 	this.strokeWidth = 2		// default stroke width
 	this.parentWidth = 0;		// whatever the latest width we know of the parent
 	this.parentHeight = 0;		// whatever the latest height we know of the parent
-	this.breatheInterval = 0.02;	// increment the breath value
-	this.breatheFactor = 0;	// current breathe value
-	this.designspace = "twobytwo";
 }
 MathShape.prototype.loadLocal = function(){
 	// load the data for this mathShape from the stuff available in this page. 
@@ -57,23 +59,11 @@ MathShape.prototype.loadLocal = function(){
 	this.masterBounds = data['sizebounds'];
 	this.extrapolateMin = data['extrapolatemin'];
 	this.extrapolateMax = data['extrapolatemax'];
-	this.designspace = data['designspace'];
-	if(this.designspace == undefined){
-		// if we have no designspace values, then assume it is two by two
-		this.designspace = "twobytwo";
-	}
-	switch(this.designspace){
-		case "twobytwo":
-			this.onLoadedLocal(Snap('#narrow-thin'));
-			this.onLoadedLocal(Snap('#wide-thin'));
-			this.onLoadedLocal(Snap('#narrow-bold'));
-			this.onLoadedLocal(Snap('#wide-bold'));
-			break;
-		case "twobyone":
-			this.onLoadedLocal(Snap('#narrow-thin'));
-			this.onLoadedLocal(Snap('#wide-thin'));
-			break;
-	}
+	this.designspace = "twobyone";	//data['designspace'];
+	this.onLoadedLocal(Snap('#narrow-thin'));
+	this.onLoadedLocal(Snap('#wide-thin'));
+	this.onLoadedLocal(Snap('#narrow-bold'));
+	this.onLoadedLocal(Snap('#wide-bold'));
 	this.svgLoaded = true;
 	this.calculateFactors();
 }
@@ -83,32 +73,28 @@ MathShape.prototype.loadFromWeb = function(){
 	var self = this;	// http://stackoverflow.com/questions/2325866/assigning-scope-amongst-jquery-getjson-and-a-js-class
 	var miPath = this.root+"/files.json";
 
-	// jQuery
 	jQuery.getJSON(miPath, {}, function(data){
 		self.masterPaths = data['files'];
 		self.masterBounds = data['sizebounds'];
 		self.extrapolateMin = data['extrapolatemin'];
 		self.extrapolateMax = data['extrapolatemax'];
-		self.designspace = data['designspace'];
+		self.designspace = "twobyone";	//data['designspace'];
 		if(self.designspace == undefined){
 			// if we have no designspace values, then assume it is two by two
-			self.designspace = "twobytwo";
+			self.designspace = "twobyone";	//"twobytwo";
 		}
 		self.loadNextMaster();
 	});
 
-	// jQuery
 	$(this.elementId).click(function callbackClick(data){
 		$(this.elementId).attr("height", "100%")
-		this.breatheFactor = 0;
+		self.breathe(0);
 	});
 }
 MathShape.prototype.breathe = function(factor){
 	//  redraw with the current size
 	// animate the other factor
-	this.breatheFactor+=this.breatheInterval;
-	this.playFactor = 0.5*Math.sin(this.breatheFactor*Math.PI)+0.5;
-	//this.playFactor = factor;
+	this.playFactor = factor;
 	if(this.svgLoaded==true){
 		this.calculateFactors();
 	}
@@ -117,7 +103,7 @@ MathShape.prototype.setFill = function(color, opacity){
 	// set the preferred color and opacity
 	this.shapeFill = color;
 	if(opacity!=undefined){
-		this.shapeFillOpacity = opacity;
+		self.shapeFillOpacity = opacity;
 	}
 }
 MathShape.prototype.setAlignment = function(alignment){
@@ -134,7 +120,6 @@ MathShape.prototype.fc = function(a, b, c){
 };
 MathShape.prototype.getParentSize = function(){
 	// obtain the height and width of the parent
-	// jQuery
 	return [$(this.elementId).parent().width(), $(this.elementId).parent().height()];
 }
 MathShape.prototype.loadNextMaster = function(){
@@ -160,7 +145,6 @@ MathShape.prototype.calculateSize = function(){
 	return [currentWidth, currentHeight];
 }
 MathShape.prototype.calculateShapeTwoByTwo = function(){
-	// calculate the shape based on 4 masters
 	var resultPath = [];
 	// when all masters are loaded
 	if(this.masterData[0]==null){
@@ -168,36 +152,34 @@ MathShape.prototype.calculateShapeTwoByTwo = function(){
 		return;
 	}
 	var ptLength = this.masterData[0].length;
-	var _sf = this.sizeFactor;
-	var _pf = this.playFactor;
 	for (var i = 0; i < ptLength; i++) {
 		var newCommand = [this.masterData[0][i][0]]; // add the command
 		// iterate through the command args
 		switch(this.masterData[0][i][0]){
 			case 'H':
 				// handle horizontal segment
-				var x1 = this.ip(this.masterData[0][i][1], this.masterData[1][i][1], _sf);
-				var x2 = this.ip(this.masterData[2][i][1], this.masterData[3][i][1], _sf);
-				var x = this.ip(x1, x2, _pf);
+				var x1 = this.ip(this.masterData[0][i][1], this.masterData[1][i][1], this.sizeFactor);
+				var x2 = this.ip(this.masterData[2][i][1], this.masterData[3][i][1], this.sizeFactor);
+				var x = this.ip(x1, x2, this.playFactor);
 				newCommand.push(x);
 				break;
 			case 'V':
 				// handle vertical segment
-				var y1 = this.ip(this.masterData[0][i][1], this.masterData[1][i][1], _sf);
-				var y2 = this.ip(this.masterData[2][i][1], this.masterData[3][i][1], _sf);
-				var y = this.ip(y1, y2, _pf);
+				var y1 = this.ip(this.masterData[0][i][1], this.masterData[1][i][1], this.sizeFactor);
+				var y2 = this.ip(this.masterData[2][i][1], this.masterData[3][i][1], this.sizeFactor);
+				var y = this.ip(y1, y2, this.playFactor);
 				newCommand.push(y);
 				break;
 			case 'L':
 			default:
 				// handle all the other segments
 				for (var args=1; args<this.masterData[0][i].length-1; args+=2){
-					var x1 = this.ip(this.masterData[0][i][args], this.masterData[1][i][args], _sf);
-					var y1 = this.ip(this.masterData[0][i][args+1], this.masterData[1][i][args+1], _sf);
-					var x2 = this.ip(this.masterData[2][i][args], this.masterData[3][i][args], _sf);
-					var y2 = this.ip(this.masterData[2][i][args+1], this.masterData[3][i][args+1], _sf);
-					var x = this.ip(x1, x2, _pf);
-					var y = this.ip(y1, y2, _pf);
+					var x1 = this.ip(this.masterData[0][i][args], this.masterData[1][i][args], this.sizeFactor);
+					var y1 = this.ip(this.masterData[0][i][args+1], this.masterData[1][i][args+1], this.sizeFactor);
+					var x2 = this.ip(this.masterData[2][i][args], this.masterData[3][i][args], this.sizeFactor);
+					var y2 = this.ip(this.masterData[2][i][args+1], this.masterData[3][i][args+1], this.sizeFactor);
+					var x = this.ip(x1, x2, this.playFactor);
+					var y = this.ip(y1, y2, this.playFactor);
 					newCommand.push(x);
 					newCommand.push(y);
 				};
@@ -205,47 +187,6 @@ MathShape.prototype.calculateShapeTwoByTwo = function(){
 		};
 		resultPath.push(newCommand);
 	};
-	this.finalizeShape(resultPath);	// make it appear
-}
-MathShape.prototype.calculateShapeTwoByOne = function(){
-	// calculate the shape based on 2 masters
-	var resultPath = [];
-	// when all masters are loaded
-	if(this.masterData[0]==null){
-		// still loading it seems
-		return;
-	}
-	var ptLength = this.masterData[0].length;
-	var _sf = this.sizeFactor;
-	var _pf = this.playFactor;
-	for (var i = 0; i < ptLength; i++) {
-		var newCommand = [this.masterData[0][i][0]]; // add the command
-		// iterate through the command args
-		switch(this.masterData[0][i][0]){
-			case 'H':
-				// handle horizontal segment
-				newCommand.push(this.ip(this.masterData[0][i][1], this.masterData[1][i][1], _sf));
-				break;
-			case 'V':
-				// handle vertical segment
-				newCommand.push(this.ip(this.masterData[0][i][1], this.masterData[1][i][1], _sf));
-				break;
-			case 'L':
-			default:
-				// handle all the other segments
-				for (var args=1; args<this.masterData[0][i].length-1; args+=2){
-					newCommand.push(this.ip(this.masterData[0][i][args], this.masterData[1][i][args], _sf));
-					newCommand.push(this.ip(this.masterData[0][i][args+1], this.masterData[1][i][args+1], _sf));
-				};
-				break;
-		};
-		resultPath.push(newCommand);
-	};
-	this.finalizeShape(resultPath);	// make it appear
-}
-MathShape.prototype.finalizeShape = function(resultPath){
-	// this is called after the shape is calculated.
-	// Can be used after different calculation methods.
 	this.snap.clear()
 	var newPath = this.snap.path(resultPath);
 	var bounds = Snap.path.getBBox(newPath);
@@ -258,11 +199,9 @@ MathShape.prototype.finalizeShape = function(resultPath){
 		switch(this.alignment){
 			// don't bother calculating the offset, just let our parent know the alignment
 			case 'center':
-				// jQuery
 				$(this.elementId).parent().attr('align', 'center');
 				break;
 			case 'right':
-				// jQuery
 				$(this.elementId).parent().attr('align', 'right');
 				break;
 		}
@@ -319,7 +258,6 @@ MathShape.prototype.calculateFactors = function(){
 	//	That means that we only have to calculate the appropriate width to fill the box.
 	//	Take the width / height ratio from the parent, then calculate
 	//	the factors needed for the image to get the same ratio. 
-	// jQuery
 	var width = $( this.elementId ).parent().outerWidth();
 	var height = $( this.elementId ).parent().outerHeight();
 	this.parentWidth = width;
@@ -343,14 +281,7 @@ MathShape.prototype.calculateFactors = function(){
 	// keep the factors within 0 and 1
 	// factor 2 is controlled by other events.
 	this.sizeFactor = Math.min(this.extrapolateMax, Math.max(this.extrapolateMin, this.sizeFactor));
-	switch(this.designspace){
-		case "twobytwo":
-			this.calculateShapeTwoByTwo();
-			break;
-		case "twobyone":
-			this.calculateShapeTwoByOne();
-			break;
-	}
+	this.calculateShapeTwoByTwo();
 }
 
 // done

@@ -15,14 +15,21 @@ from makePage import PageMaker
 import tempfile
 
 class ExportUI(object):
+    designSpaceModelLibKey = "com.letterror.mathshape.designspace"
     shapeColorLibKey = "com.letterror.mathshape.preview.shapecolor"
     backgroundColorLibKey = "com.letterror.mathshape.preview.bgcolor"
     preferredFilenameLibKey = "com.letterror.mathshape.filename"
-    masterNames = ['narrow-thin', 'wide-thin', 'narrow-bold', 'wide-bold']
+    animatingModels = ["twobytwo"]
     def __init__(self):
         f = CurrentFont()
         if f is None:
             return
+        self.designSpaceModel = f.lib.get(self.designSpaceModelLibKey, "twobytwo")
+        #print "self.designSpaceModel", self.designSpaceModel
+        if self.designSpaceModel == "twobytwo":
+            self.masterNames = ['narrow-thin', 'wide-thin', 'narrow-bold', 'wide-bold']
+        elif self.designSpaceModel == "twobyone":
+            self.masterNames = ['narrow-thin', 'wide-thin']
         self.shapeColor = None
         self.backgroundColor = None
         self.extrapolateMinValue = 0
@@ -143,9 +150,13 @@ class ExportUI(object):
             g = f[n]
             if hasBounds:
                 gb = g.getLayer('bounds')
-                xMin, yMin, xMax, yMax = gb.box
-                width = xMax-xMin
-                height = yMax-yMin
+                if gb.box is None:
+                    width = "-"
+                    height = "-"
+                else:
+                    xMin, yMin, xMax, yMax = gb.box
+                    width = xMax-xMin
+                    height = yMax-yMin
             else:
                 width = g.width
                 height = None
@@ -172,23 +183,30 @@ class ExportUI(object):
                     points +=1
         return contours, points
 
+    def _convertColor(self, clr):
+        colorSpaceName = clr.colorSpaceName()
+        red,grn,blu,alf = 0,0,0,1
+        if colorSpaceName in ["NSCalibratedWhiteColorSpace", "NSCalibratedBlackColorSpace"]:
+            red = grn = blu = clr.whiteComponent()
+            alf = clr.alphaComponent()
+        elif colorSpaceName in ["NSDeviceRGBColorSpace", "NSCustomColorSpace"]:
+            red = clr.redComponent()
+            grn = clr.greenComponent()
+            blu = clr.blueComponent()
+            alf = clr.alphaComponent()
+        return red,grn,blu,alf
+
     def shapeColorWellCallback(self, sender):
         # update the color from the colorwell
-        clr = sender.get()
-        red = clr.redComponent()
-        grn = clr.greenComponent()
-        blu = clr.blueComponent()
-        alf = clr.alphaComponent()
-        self.setShapeColor((red, grn, blu, alf))        # set the color in the well
+        # check colorspace.
+        red, grn, blu, alf = self._convertColor(sender.get())
+        self.setShapeColor((red, grn, blu, alf))   # set the color in the well
         self.cbMakePreview(self)  # update the preview      
 
     def backgroundColorWellCallback(self, sender):
         # update the color from the colorwell
         clr = sender.get()
-        red = clr.redComponent()
-        grn = clr.greenComponent()
-        blu = clr.blueComponent()
-        alf = clr.alphaComponent()
+        red, grn, blu, alf = self._convertColor(sender.get())
         self.setBackgroundColor((red, grn, blu, alf))        # set the color in the well
         self.cbMakePreview(self)  # update the preview      
     
@@ -210,15 +228,20 @@ class ExportUI(object):
         if f is None:
             return
         proposedName = self.proposeFilename(f)
+        if self.designSpaceModel in self.animatingModels:
+            needsAnimateCode = True
+        else:
+            needsAnimateCode = False
         # export the mathshape
-        root, tags, metaData = exportCurrentFont(f, self.masterNames, proposedName, self.extrapolateMinValue, self.extrapolateMaxValue)
+        root, tags, metaData = exportCurrentFont(f, self.masterNames, proposedName, self.extrapolateMinValue, self.extrapolateMaxValue, model=self.designSpaceModel)
         outputPath = os.path.join(root, "preview_%s.html"%proposedName)
         resourcesPath = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "Resources")
         outputPath = os.path.join(root, "preview_%s.html"%proposedName)
         pm = PageMaker(resourcesPath, os.path.join(root, proposedName),
             outputPath,
             shapeColor= self.shapeColor,
-            bgColor = self.backgroundColor
+            bgColor = self.backgroundColor,
+            animate = needsAnimateCode
             )
         return outputPath
     
@@ -228,13 +251,10 @@ class ExportUI(object):
         return name
 
 
-def exportCurrentFont(exportFont, masterNames, folderName, extrapolateMin=0, extrapolateMax=1, saveFiles=True):
+def exportCurrentFont(exportFont, masterNames, folderName, extrapolateMin=0, extrapolateMax=1, saveFiles=True, model="twobytwo"):
     tags = []       # the svg tags as they are produced
     exportFont.save()
     path = exportFont.path
-    checkBoundsLayer = False
-    if 'bounds' in exportFont.layerOrder:
-        checkBoundsLayer = True
     root = os.path.dirname(exportFont.path)
     if saveFiles:
         # if we want to export to a real folder
@@ -265,7 +285,7 @@ def exportCurrentFont(exportFont, masterNames, folderName, extrapolateMin=0, ext
     metaData = dict(sizebounds=allBounds, files=[folderName+"/%s.svg"%n for n in masterNames])
     metaData['extrapolatemin']=extrapolateMin
     metaData['extrapolatemax']=extrapolateMax
-    metaData['designspace']='twobytwo'
+    metaData['designspace']=model
     if saveFiles:
         jsonFile = open(jsonPath, 'w')
         jsonFile.write(json.dumps(metaData))

@@ -2,7 +2,7 @@ import vanilla
 from mojo.canvas import Canvas
 from AppKit import NSNumberFormatter
 from defconAppKit.windows.baseWindow import BaseWindowController
-
+from robofab.world import NewFont
 """
 
     Make a new UFO and give it the appropriate glyphs and layers.
@@ -10,27 +10,18 @@ from defconAppKit.windows.baseWindow import BaseWindowController
 """
 import os, time
 
-designSpaceModelLibKey = "com.letterror.mathshape.designspace"
-
-def prepareMathShapeUFO(narrow=500, wide=2500, upm=1000, familyName="MathShape", styleName="New", model="twobytwo"):
+def prepareMathShapeUFO(narrow=500, wide=2500, upm=1000, familyName="MathShape", styleName="New"):
     f = NewFont(familyName=familyName, styleName=styleName)
-    f.info.note = "This is a template font for a Responsive Lettering project, using a %s designspace. The font names and glyph widths can all tbe changed."%model
+    f.info.note = "This is a template font for a MathShape. The font names and glyph widths can all tbe changed."
     f.info.unitsPerEm = upm
     f.info.ascender = .75*upm
     f.info.descender = -.25*upm
-    f.lib[designSpaceModelLibKey] = model
-    if model == "twobytwo":
-        glyphs = [
-            ('narrow-thin', narrow),
-            ('wide-thin', wide),
-            ('narrow-bold',narrow),
-            ('wide-bold', wide),
-            ]
-    elif model == "twobyone":
-        glyphs = [
-            ('narrow-thin', narrow),
-            ('wide-thin', wide),
-            ]
+    glyphs = [
+        ('narrow-thin', narrow),
+        ('wide-thin', wide),
+        ('narrow-bold',narrow),
+        ('wide-bold', wide),
+        ]
     names = [a for a, b in glyphs]
     f.lib['public.glyphOrder'] = names
     # draw bounds layer
@@ -76,7 +67,7 @@ def prepareMathShapeUFO(narrow=500, wide=2500, upm=1000, familyName="MathShape",
 
 class NewMathShapePicker(BaseWindowController):
     windowWidth = 250
-    windowHeight = 230
+    windowHeight = 200
     def __init__(self):
         self.fontObject = None
         self.size = 50
@@ -99,8 +90,6 @@ class NewMathShapePicker(BaseWindowController):
         wideFormatter.setAllowsFloats_(False)
         wideFormatter.setMinimum_(10)
         wideFormatter.setMaximum_(10000)
-        
-        self.designSpaceOptions = [("Responsive + animation (4 masters)", "twobytwo"), ("Only responsive (2 masters)", "twobyone")]
 
         self.w = vanilla.Window((self.windowWidth, self.windowHeight), "New MathShape UFO", textured=False)
         self.w.cancel = vanilla.Button((10, -30, 100, 20), "Cancel", callback=self.cancelCallback)
@@ -115,11 +104,11 @@ class NewMathShapePicker(BaseWindowController):
         self.w.upmValue = vanilla.EditText((valueColumn, 70, -10, 20), 1000, formatter=upmFormatter, sizeStyle="small")
         self.w.upmValueCp = vanilla.TextBox((10, 70+cpOffset, 100, 20), "Units per Em", sizeStyle="small")
         
-        self.w.familyNameString = vanilla.EditText((valueColumn, 100, -10, 20), "Responsive", sizeStyle="small")
+        self.w.familyNameString = vanilla.EditText((valueColumn, 100, -10, 20), "MathShape", sizeStyle="small")
         self.w.familyNameStringCp = vanilla.TextBox((10, 100+cpOffset, 100, 20), "Familyname", sizeStyle="small")
         self.w.styleNameString = vanilla.EditText((valueColumn, 130, -10, 20), proposedStyleName, sizeStyle="small")
         self.w.styleNameStringCp = vanilla.TextBox((10, 130+cpOffset, 100, 20), "Stylename", sizeStyle="small")
-        self.w.modelPopup = vanilla.PopUpButton((10, 160, -10, 20), [a for a,b in self.designSpaceOptions], sizeStyle="small")
+        
         self.setUpBaseWindowBehavior()
         self.w.open()
 
@@ -129,13 +118,11 @@ class NewMathShapePicker(BaseWindowController):
         wideWidth = int(self.w.wideValue.get())
         fName = self.w.familyNameString.get()
         sName = self.w.styleNameString.get()
-        designSpaceModel = self.designSpaceOptions[self.w.modelPopup.get()][1]
         self.fontObject = prepareMathShapeUFO(narrow=narrowWidth,
             wide=wideWidth,
             upm=upm,
             familyName=fName,
-            styleName=sName,
-            model=designSpaceModel)
+            styleName=sName)
         preferredName = "%s-%s.ufo"%(self.fontObject.info.familyName, self.fontObject.info.styleName) 
         self.showPutFile(["ufo"], fileName=preferredName, callback=self._saveFile)
 
