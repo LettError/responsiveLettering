@@ -31,6 +31,17 @@ def prepareMathShapeUFO(narrow=500, wide=2500, upm=1000, familyName="MathShape",
             ('narrow-thin', narrow),
             ('wide-thin', wide),
             ]
+    elif model == "threebyone":
+        if narrow < upm:
+            # medium glyph at square ratio?
+            medium = upm
+        else:
+            medium = 0.5*(narrow+wide)
+        glyphs = [
+            ('narrow-thin', narrow),
+            ('wide-thin', wide),
+            ('medium-thin', medium),
+            ]
     names = [a for a, b in glyphs]
     f.lib['public.glyphOrder'] = names
     # draw bounds layer
@@ -100,7 +111,11 @@ class NewMathShapePicker(BaseWindowController):
         wideFormatter.setMinimum_(10)
         wideFormatter.setMaximum_(10000)
         
-        self.designSpaceOptions = [("Responsive + animation (4 masters)", "twobytwo"), ("Only responsive (2 masters)", "twobyone")]
+        self.designSpaceOptions = [
+            ("Responsive + animation (4 masters)", "twobytwo"), 
+            ("Only responsive (2 masters)", "twobyone"),
+            ("Only responsive (3 masters)", "threebyone"),
+            ]
 
         self.w = vanilla.Window((self.windowWidth, self.windowHeight), "New MathShape UFO", textured=False)
         self.w.cancel = vanilla.Button((10, -30, 100, 20), "Cancel", callback=self.cancelCallback)

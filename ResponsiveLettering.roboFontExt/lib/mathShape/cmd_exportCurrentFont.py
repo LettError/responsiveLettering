@@ -30,6 +30,8 @@ class ExportUI(object):
             self.masterNames = ['narrow-thin', 'wide-thin', 'narrow-bold', 'wide-bold']
         elif self.designSpaceModel == "twobyone":
             self.masterNames = ['narrow-thin', 'wide-thin']
+        elif self.designSpaceModel == "threebyone":
+            self.masterNames = ['narrow-thin', 'wide-thin', 'medium-thin']  # keep the order of the extreme bounds, assume the middle bounds is square
         self.shapeColor = None
         self.backgroundColor = None
         self.extrapolateMinValue = 0

@@ -30,6 +30,7 @@ function MathShape(elementId, miURL){
 	this.mastersLoaded = [];	// the order in which the masters have actually loaded
 	this.masterBounds = [];		// min max bounds of the masters (we get wrong results from snap)
 	this.sizeFactor = 0.5;			// factor1 width/height ratio
+	this.squareFactor = 0.5;		// factor for width == height
 	this.playFactor = 1.0;			// factor2
 	this.currentLoadIndex = 0;	// keep track of the number of files we loaded
 	this.svgLoaded = false;		// are we done?
@@ -49,6 +50,8 @@ function MathShape(elementId, miURL){
 	this.breatheInterval = 0.02;	// increment the breath value
 	this.breatheFactor = 0;	// current breathe value
 	this.designspace = "twobytwo";
+	this.currentWidth = 0;		// the current width
+	this.currentHeight = 0;		// the current height
 }
 MathShape.prototype.loadLocal = function(){
 	// load the data for this mathShape from the stuff available in this page. 
@@ -72,6 +75,11 @@ MathShape.prototype.loadLocal = function(){
 		case "twobyone":
 			this.onLoadedLocal(Snap('#narrow-thin'));
 			this.onLoadedLocal(Snap('#wide-thin'));
+			break;
+		case "threebyone":
+			this.onLoadedLocal(Snap('#narrow-thin'));
+			this.onLoadedLocal(Snap('#wide-thin'));
+			this.onLoadedLocal(Snap('#medium-thin'));
 			break;
 	}
 	this.svgLoaded = true;
@@ -159,7 +167,11 @@ MathShape.prototype.calculateSize = function(){
 	currentHeight = this.masterBounds[0][1]
 	return [currentWidth, currentHeight];
 }
-MathShape.prototype.calculateShapeTwoByTwo = function(){
+MathShape.prototype.calculateShapeTwoByTwo = function(_sf, _pf, master0, master1, master2, master3){
+	// master0 this.masterData[0]
+	// master1 this.masterData[1]
+	// master2 this.masterData[2]
+	// master3 this.masterData[3]
 	// calculate the shape based on 4 masters
 	var resultPath = [];
 	// when all masters are loaded
@@ -167,35 +179,35 @@ MathShape.prototype.calculateShapeTwoByTwo = function(){
 		// still loading it seems
 		return;
 	}
-	var ptLength = this.masterData[0].length;
-	var _sf = this.sizeFactor;
-	var _pf = this.playFactor;
+	var ptLength = master0.length;
+	//var _sf = this.sizeFactor;
+	//var _pf = this.playFactor;
 	for (var i = 0; i < ptLength; i++) {
-		var newCommand = [this.masterData[0][i][0]]; // add the command
+		var newCommand = [master0[i][0]]; // add the command
 		// iterate through the command args
-		switch(this.masterData[0][i][0]){
+		switch(master0[i][0]){
 			case 'H':
 				// handle horizontal segment
-				var x1 = this.ip(this.masterData[0][i][1], this.masterData[1][i][1], _sf);
-				var x2 = this.ip(this.masterData[2][i][1], this.masterData[3][i][1], _sf);
+				var x1 = this.ip(master0[i][1], master1[i][1], _sf);
+				var x2 = this.ip(master2[i][1], master3[i][1], _sf);
 				var x = this.ip(x1, x2, _pf);
 				newCommand.push(x);
 				break;
 			case 'V':
 				// handle vertical segment
-				var y1 = this.ip(this.masterData[0][i][1], this.masterData[1][i][1], _sf);
-				var y2 = this.ip(this.masterData[2][i][1], this.masterData[3][i][1], _sf);
+				var y1 = this.ip(master0[i][1], master1[i][1], _sf);
+				var y2 = this.ip(master2[i][1], master3[i][1], _sf);
 				var y = this.ip(y1, y2, _pf);
 				newCommand.push(y);
 				break;
 			case 'L':
 			default:
 				// handle all the other segments
-				for (var args=1; args<this.masterData[0][i].length-1; args+=2){
-					var x1 = this.ip(this.masterData[0][i][args], this.masterData[1][i][args], _sf);
-					var y1 = this.ip(this.masterData[0][i][args+1], this.masterData[1][i][args+1], _sf);
-					var x2 = this.ip(this.masterData[2][i][args], this.masterData[3][i][args], _sf);
-					var y2 = this.ip(this.masterData[2][i][args+1], this.masterData[3][i][args+1], _sf);
+				for (var args=1; args<master0[i].length-1; args+=2){
+					var x1 = this.ip(master0[i][args], master1[i][args], _sf);
+					var y1 = this.ip(master0[i][args+1], master1[i][args+1], _sf);
+					var x2 = this.ip(master2[i][args], master3[i][args], _sf);
+					var y2 = this.ip(master2[i][args+1], master3[i][args+1], _sf);
 					var x = this.ip(x1, x2, _pf);
 					var y = this.ip(y1, y2, _pf);
 					newCommand.push(x);
@@ -207,35 +219,37 @@ MathShape.prototype.calculateShapeTwoByTwo = function(){
 	};
 	this.finalizeShape(resultPath);	// make it appear
 }
-MathShape.prototype.calculateShapeTwoByOne = function(){
+MathShape.prototype.calculateShapeTwoByOne = function(_sf, master0, master1){
+	// this.masterData[0] master0
+	// this.masterData[1] master1
 	// calculate the shape based on 2 masters
 	var resultPath = [];
 	// when all masters are loaded
-	if(this.masterData[0]==null){
+	if(master0==null){
 		// still loading it seems
 		return;
 	}
-	var ptLength = this.masterData[0].length;
-	var _sf = this.sizeFactor;
-	var _pf = this.playFactor;
+	var ptLength = master0.length;
+	// var _sf = this.sizeFactor;
+	// var _pf = this.playFactor;
 	for (var i = 0; i < ptLength; i++) {
-		var newCommand = [this.masterData[0][i][0]]; // add the command
+		var newCommand = [master0[i][0]]; // add the command
 		// iterate through the command args
-		switch(this.masterData[0][i][0]){
+		switch(master0[i][0]){
 			case 'H':
-				// handle horizontal segment
-				newCommand.push(this.ip(this.masterData[0][i][1], this.masterData[1][i][1], _sf));
+				// handle horizontal segment 
+				newCommand.push(this.ip(master0[i][1], master1[i][1], _sf));
 				break;
 			case 'V':
 				// handle vertical segment
-				newCommand.push(this.ip(this.masterData[0][i][1], this.masterData[1][i][1], _sf));
+				newCommand.push(this.ip(master0[i][1], master1[i][1], _sf));
 				break;
 			case 'L':
 			default:
 				// handle all the other segments
-				for (var args=1; args<this.masterData[0][i].length-1; args+=2){
-					newCommand.push(this.ip(this.masterData[0][i][args], this.masterData[1][i][args], _sf));
-					newCommand.push(this.ip(this.masterData[0][i][args+1], this.masterData[1][i][args+1], _sf));
+				for (var args=1; args<master0[i].length-1; args+=2){
+					newCommand.push(this.ip(master0[i][args], master1[i][args], _sf));
+					newCommand.push(this.ip(master0[i][args+1], master1[i][args+1], _sf));
 				};
 				break;
 		};
@@ -270,8 +284,8 @@ MathShape.prototype.finalizeShape = function(resultPath){
 	// if the bounds of the resulting shape are not enough to fit the box,
 	// center the image in the box
 	if(this.fitHeight){
-		var currentSize = this.calculateSize();
-		this.snap.attr({ viewBox: "0 0 "+currentSize[0]+" "+currentSize[1]+" " });
+		// var currentSize = this.calculateSize();
+		this.snap.attr({ viewBox: "0 0 "+this.currentWidth+" "+this.currentHeight+" " });
 	}
 }
 
@@ -325,8 +339,13 @@ MathShape.prototype.calculateFactors = function(){
 	this.parentWidth = width;
 	this.parentHeight = height;
 	this.parentRatio = width/height; // we need to match this
+
+	this.currentWidth = this.ip(this.masterBounds[0][0], this.masterBounds[1][0], this.sizeFactor);
+	this.currentHeight = this.masterBounds[0][1]
+
 	// check if we can calculate the factors based on the bounds
 	// assume bounds are the same
+	// calculate the factor with which the box is square
 	var mWidths = 0;
 	var mHeights = 0;
 	var minWidth = this.masterBounds[0][0];
@@ -339,16 +358,47 @@ MathShape.prototype.calculateFactors = function(){
 		minHeight = Math.min(minHeight, this.masterBounds[i][1]);
 		maxHeight = Math.max(maxHeight, this.masterBounds[i][1]);
 	};
-	this.sizeFactor = this.fc(minWidth, maxWidth, this.parentRatio*minHeight);
+	this.squareFactor = this.fc(minWidth, maxWidth, minHeight);
 	// keep the factors within 0 and 1
 	// factor 2 is controlled by other events.
+	this.sizeFactor = this.fc(minWidth, maxWidth, this.parentRatio*minHeight);
 	this.sizeFactor = Math.min(this.extrapolateMax, Math.max(this.extrapolateMin, this.sizeFactor));
+	console.log("this.masterBounds", this.masterBounds);
 	switch(this.designspace){
 		case "twobytwo":
-			this.calculateShapeTwoByTwo();
+			//var _sf = this.sizeFactor;
+			//var _pf = this.playFactor;
+			// master0 this.masterData[0]
+			// master1 this.masterData[1]
+			// master2 this.masterData[2]
+			// master3 this.masterData[3]
+			this.calculateShapeTwoByTwo(this.sizeFactor, this.playFactor, this.masterData[0], this.masterData[1], this.masterData[2], this.masterData[3]);
 			break;
 		case "twobyone":
-			this.calculateShapeTwoByOne();
+			// this.masterData[0] master0
+			// this.masterData[1] master1
+			//console.log("this.sizeFactor", this.sizeFactor);
+			this.calculateShapeTwoByOne(this.sizeFactor, this.masterData[0], this.masterData[1]);
+			break;
+		case "threebyone":
+			// this.masterData[0] master0
+			// this.masterData[1] master1
+			if(this.sizeFactor<this.squareFactor){
+				console.log("this.sizeFactor A");
+				this.sizeFactor = this.fc(minWidth, this.masterBounds[2][0], this.parentRatio*minHeight);
+				this.sizeFactor = Math.min(this.extrapolateMax, Math.max(this.extrapolateMin, this.sizeFactor));
+				this.currentWidth = this.ip(this.masterBounds[0][0], this.masterBounds[2][0], this.sizeFactor);
+				console.log("factors", this.squareFactor, this.sizeFactor);
+				this.calculateShapeTwoByOne(this.sizeFactor, this.masterData[0], this.masterData[2]);
+			}
+			else{
+				console.log("this.sizeFactor B");
+				this.sizeFactor = this.fc(this.masterBounds[2][0], maxWidth, this.parentRatio*minHeight);
+				this.sizeFactor = Math.min(this.extrapolateMax, Math.max(this.extrapolateMin, this.sizeFactor));
+				this.currentWidth = this.ip(this.masterBounds[2][0], this.masterBounds[1][0], this.sizeFactor);
+				console.log("factors", this.squareFactor, this.sizeFactor);
+				this.calculateShapeTwoByOne(this.sizeFactor, this.masterData[2], this.masterData[1]);
+			}
 			break;
 	}
 }
