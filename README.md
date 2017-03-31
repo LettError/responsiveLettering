@@ -27,7 +27,7 @@ The RoboFont extension is a useful tool for previewing and exporting vector work
 ## Export to Designspace
 
 ![Variable font generated from a responsive lettering project exported to designspace](peace.png)
-Version 1.7 introduces a simple export to designspace with separate master UFOs, which is useful if you want to generate a variable font from the data. The exporter makes some assumptions about the glyph names in the source file. These are valid glyphnames (depending on the model):
+Version 1.7 introduces a simple export to [designspace](https://github.com/LettError/designSpaceDocument) with separate master UFOs, which is useful if you want to generate a variable font from the data using [Batch](https://github.com/typemytype/batchRoboFontExtension). The exporter makes some assumptions about the glyph names in the source file. These are valid glyphnames (depending on the model):
 
 * narrow-thin
 * wide-thin
