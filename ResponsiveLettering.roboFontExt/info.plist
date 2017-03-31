@@ -20,6 +20,14 @@
 			<key>shortKey</key>
 			<string></string>
 		</dict>
+		<dict>
+			<key>path</key>
+			<string>mathShape/cmd_exportVariableFont.py</string>
+			<key>preferredName</key>
+			<string>Export to Designspace</string>
+			<key>shortKey</key>
+			<string></string>
+		</dict>
 	</array>
 	<key>developer</key>
 	<string>LettError</string>
@@ -34,9 +42,9 @@
 	<key>name</key>
 	<string>Responsive Lettering</string>
 	<key>timeStamp</key>
-	<real>1455472296.03</real>
+	<real>1490954162.06</real>
 	<key>version</key>
-	<string>1.6</string>
+	<string>1.7</string>
 	<key>com.robofontmechanic.Mechanic</key>
 <dict>
 	<key>repository</key>
