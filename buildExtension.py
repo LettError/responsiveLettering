@@ -9,7 +9,7 @@
 import os, shutil
 
 root = os.getcwd()
-print root
+print(root)
 extensionPath = os.path.join(root, u"ResponsiveLettering.roboFontExt")
 srcLibPath = os.path.join(root, u'lib', u'mathShape')
 dstLibPath = os.path.join(root, u"ResponsiveLettering.roboFontExt", u'lib', u'mathShape')
@@ -17,9 +17,9 @@ dstLibPath = os.path.join(root, u"ResponsiveLettering.roboFontExt", u'lib', u'ma
 srcMathShapePath = os.path.join(root, u'www', u'mathShape.js')
 dstMathShapePath = os.path.join(extensionPath, u'resources')
 
-print "extensionPath", extensionPath
-print "srcLibPath", srcLibPath
-print 'dstLibPath', dstLibPath
+print("extensionPath", extensionPath)
+print("srcLibPath", srcLibPath)
+print('dstLibPath', dstLibPath)
 
 
 # print os.listdir(srcLibPath)
@@ -27,10 +27,10 @@ print 'dstLibPath', dstLibPath
 # print os.listdir(extensionPath)
 
 # copy mathShape.js from www to extension
-print os.path.exists(srcMathShapePath), srcMathShapePath
-print os.path.exists(dstMathShapePath), dstMathShapePath
-print os.listdir(dstMathShapePath)
-print shutil.copy(srcMathShapePath, dstMathShapePath)
+print(os.path.exists(srcMathShapePath), srcMathShapePath)
+print(os.path.exists(dstMathShapePath), dstMathShapePath)
+print(os.listdir(dstMathShapePath))
+print(shutil.copy(srcMathShapePath, dstMathShapePath))
 
 # copy the lib to the extension
 if os.path.exists(dstLibPath):

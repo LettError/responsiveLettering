@@ -2,6 +2,7 @@ import vanilla
 from mojo.canvas import Canvas
 from AppKit import NSNumberFormatter
 from defconAppKit.windows.baseWindow import BaseWindowController
+from mojo.UI import *
 
 """
 
@@ -40,7 +41,8 @@ def prepareMathShapeUFO(narrow=500, wide=2500, upm=1000, familyName="MathShape",
         f.newGlyph(name)
         g = f[name]
         g.width = width
-        boundsGlyph = g.getLayer('bounds', clear=True)
+        boundsGlyph = g.getLayer('bounds')
+        boundsGlyph.clear()
         pen = boundsGlyph.getPen()
         pen.moveTo((0,dsc))
         pen.lineTo((g.width,dsc))
@@ -136,9 +138,17 @@ class NewMathShapePicker(BaseWindowController):
             familyName=fName,
             styleName=sName,
             model=designSpaceModel)
+        self.displayGlyphSet(self.fontObject.keys())
         preferredName = "%s-%s.ufo"%(self.fontObject.info.familyName, self.fontObject.info.styleName) 
         self.showPutFile(["ufo"], fileName=preferredName, callback=self._saveFile)
 
+    def displayGlyphSet(self, glyphNames):
+        # find the new glyphs in the font window. 
+        search = SmartSet()
+        search.glyphNames = glyphNames
+        window = CurrentFontWindow()
+        window.getGlyphCollection().setQuery(search.getQueryObject())
+    
     def _saveFile(self, path):
         if self.fontObject is not None:
             for g in self.fontObject:
@@ -147,7 +157,7 @@ class NewMathShapePicker(BaseWindowController):
         self.w.close()
         
     def cancelCallback(self, sender):
-        print 'cancelling'
+        print('cancelling')
         self.w.close()
         
 

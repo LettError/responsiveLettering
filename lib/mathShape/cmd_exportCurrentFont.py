@@ -9,7 +9,6 @@ from AppKit import NSColor
 
 from exportTools import makeSVGShape, makeMaster
 import makePage
-reload(makePage)
 from makePage import PageMaker
 
 import tempfile
@@ -24,14 +23,20 @@ class ExportUI(object):
         f = CurrentFont()
         if f is None:
             return
+        if f.path is None:
+            print("Save this font first!")
+            return
+            
         self.designSpaceModel = f.lib.get(self.designSpaceModelLibKey, "twobytwo")
         #print "self.designSpaceModel", self.designSpaceModel
         if self.designSpaceModel == "twobytwo":
             self.masterNames = ['narrow-thin', 'wide-thin', 'narrow-bold', 'wide-bold']
         elif self.designSpaceModel == "twobyone":
             self.masterNames = ['narrow-thin', 'wide-thin']
-        self.shapeColor = None
-        self.backgroundColor = None
+        rgbBlack = NSColor.colorWithDeviceRed_green_blue_alpha_(0,0,0,1)
+        rgbWhite = NSColor.colorWithDeviceRed_green_blue_alpha_(255,255,255,1)
+        self.shapeColor = rgbWhite
+        self.backgroundColor = rgbBlack
         self.extrapolateMinValue = 0
         self.extrapolateMaxValue = 1
         self.w = vanilla.Window((500, 600), "Responsive Lettering", minSize=(300,200))
@@ -47,8 +52,8 @@ class ExportUI(object):
         ]
         self.w.l = vanilla.List((0,-140,-0,-40), self.wrapGlyphs(), columnDescriptions=columnDescriptions, doubleClickCallback=self.callbackListClick)
         self.w.t = vanilla.TextBox((70,-27,-160,20), "FontName", sizeStyle="small")
-        self.w.backgroundColorWell = vanilla.ColorWell((10,-30, 20, 20), callback=self.backgroundColorWellCallback, color=NSColor.blackColor())
-        self.w.shapeColorWell = vanilla.ColorWell((35,-30, 20, 20), callback=self.shapeColorWellCallback, color=NSColor.whiteColor())
+        self.w.backgroundColorWell = vanilla.ColorWell((10,-30, 20, 20), callback=self.backgroundColorWellCallback, color=rgbBlack)
+        self.w.shapeColorWell = vanilla.ColorWell((35,-30, 20, 20), callback=self.shapeColorWellCallback, color=rgbWhite)
 
         self.w.bind("became main", self.windowBecameMainCallback)
         self.setColorsFromLib()
@@ -185,15 +190,18 @@ class ExportUI(object):
 
     def _convertColor(self, clr):
         colorSpaceName = clr.colorSpaceName()
-        red,grn,blu,alf = 0,0,0,1
+
+        red,grn,blu,alf = 255,0,0,1
         if colorSpaceName in ["NSCalibratedWhiteColorSpace", "NSCalibratedBlackColorSpace"]:
             red = grn = blu = clr.whiteComponent()
             alf = clr.alphaComponent()
-        elif colorSpaceName in ["NSDeviceRGBColorSpace", "NSCustomColorSpace"]:
+        elif colorSpaceName in ["NSCalibratedRGBColorSpace", "NSDeviceRGBColorSpace", "NSCustomColorSpace"]:
             red = clr.redComponent()
             grn = clr.greenComponent()
             blu = clr.blueComponent()
             alf = clr.alphaComponent()
+        else:
+            print("Responsive Lettering found a new colorSpaceName ", colorSpaceName )
         return red,grn,blu,alf
 
     def shapeColorWellCallback(self, sender):

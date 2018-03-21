@@ -2,7 +2,7 @@
 
 import os
 from fontTools.pens.basePen import BasePen
-from robofab.pens.boundsPen import BoundsPen
+from fontTools.pens.boundsPen import BoundsPen
 from fontTools.pens.transformPen import TransformPen
 from fontTools.misc.transform import Transform
 
@@ -12,7 +12,6 @@ from mathImageSVGPathPen import MathImageSVGPathPen
 def makeMaster(filePath, svg):
 	docType = """<?xml version="1.0" standalone="no"?><!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">"""
 	f = open(filePath, 'w')
-	# print filePath
 	f.write(docType+svg)
 	f.close()
 
@@ -32,10 +31,8 @@ def makeSVGShape(glyph, name=None, width=None, opacity=None):
         boundsGlyph = glyph.getLayer('bounds')
         if boundsGlyph is not None:
             bounds = boundsGlyph.box
-            # print 'using bounds from bounds layer'
     except:
         pass
-        # print 'using bounds from glyph'
     if bounds is None:
         boundsPen = BoundsPen({})
         glyph.draw(boundsPen)
@@ -55,9 +52,7 @@ def makeSVGShape(glyph, name=None, width=None, opacity=None):
     if opacity is not None:
         attrs['fill-opacity'] = "%3.3f"%opacity
 
-
     t = Transform()
-    # print bounds, -(bounds[3]-bounds[1])
     t = t.scale(1,-1)
     t = t.translate(0, -bounds[3])
     vb = (0, 0, glyph.width, bounds[3]-bounds[1])

@@ -3,7 +3,6 @@
 from fontTools.pens.basePen import BasePen
 from ufo2svg.tools import pointToString, valueToString
 
-
 """
     Almost indentical to the pen in ufo2svg, except 
     that this one does not optimise horizontal or 
@@ -238,3 +237,4 @@ class MathImageSVGPathPen(BasePen):
 if __name__ == "__main__":
     import doctest
     doctest.testmod()
+    

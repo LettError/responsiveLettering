@@ -11,9 +11,6 @@ class VariableFontExporter(object):
     def __init__(self, font):
         self.font = font
         self.designSpaceModel = self.font.lib.get(self.designSpaceModelLibKey, "twobytwo")
-        #if self.designSpaceModel is None:
-        #    print("This font is probably not a Responsive Lettering project?")
-        #    return
         if self.designSpaceModel == "twobytwo":
             self.masterNames = ['narrow-thin', 'wide-thin', 'narrow-bold', 'wide-bold']
             self.fontNames = {'narrow-thin':'NarrowThin', 'wide-thin':'WideThin', 'narrow-bold':'NarrowBold', 'wide-bold':'WideBold'}
@@ -70,19 +67,16 @@ class VariableFontExporter(object):
                 #a.labelNames['en'] = "Weight"
                 doc.addAxis(a)
                 
-        
-        print "projectRoot", projectRoot
-        
         masterCount = 0
         for name in self.masterNames:
             if name in self.font:
                 masterCount += 1
         if masterCount != len(self.masterNames):
-            print "missing glyphs, can't generate"
+            print("missing glyphs, can't generate")
             return
         closers = []
         for name in self.masterNames:
-            print "processing", name, self.locations[name]
+            print("processing", name, self.locations[name])
             m = RFont()
             m.info.unitsPerEm = self.font.info.unitsPerEm
             m.info.ascender = self.font.info.ascender
