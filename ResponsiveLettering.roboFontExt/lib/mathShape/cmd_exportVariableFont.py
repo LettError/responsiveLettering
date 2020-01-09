@@ -1,5 +1,5 @@
 import os
-from designSpaceDocument import DesignSpaceDocument, AxisDescriptor, SourceDescriptor, InstanceDescriptor
+from ufoProcessor import DesignSpaceDocument, AxisDescriptor, SourceDescriptor, InstanceDescriptor
 
 class VariableFontExporter(object):
     designSpaceModelLibKey = "com.letterror.mathshape.designspace"

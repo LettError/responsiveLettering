@@ -140,7 +140,7 @@ class ExportUI(object):
         f = CurrentFont()
         if f is None:
             return
-        names = f.keys()
+        names = list(f.keys())
         names.sort()
         layers = f.layerOrder
         if 'bounds' in layers:

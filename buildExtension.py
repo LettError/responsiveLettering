@@ -21,7 +21,6 @@ print("extensionPath", extensionPath)
 print("srcLibPath", srcLibPath)
 print('dstLibPath', dstLibPath)
 
-
 # print os.listdir(srcLibPath)
 # print os.listdir(dstLibPath)
 # print os.listdir(extensionPath)
