@@ -1,15 +1,22 @@
+import mojo
+import time
 import vanilla
-from mojo.canvas import Canvas
 from AppKit import NSNumberFormatter
 from defconAppKit.windows.baseWindow import BaseWindowController
-from mojo.UI import *
+from mojo.UI import CurrentFontWindow
+
+# the location of smart sets has moved in RF3:
+rf_version = mojo.roboFont.version
+if int(rf_version[0]) >= 3:
+    from mojo.smartSet import SmartSet
+else:
+    from mojo.UI import SmartSet
 
 """
 
     Make a new UFO and give it the appropriate glyphs and layers.
     
 """
-import os, time
 
 designSpaceModelLibKey = "com.letterror.mathshape.designspace"
 
