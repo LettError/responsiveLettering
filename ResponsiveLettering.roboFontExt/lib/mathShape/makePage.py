@@ -60,6 +60,7 @@ setInterval(function () {
 			f = codecs.open(svgPath, 'r', 'utf-8')
 			svgData = f.read()
 			svgLoaderContainer.append(svgData)
+			f.close()
 
 		# paste
 		self.html = self.html.replace("//mathshape", js)
