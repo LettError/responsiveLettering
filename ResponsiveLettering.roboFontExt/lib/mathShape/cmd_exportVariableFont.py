@@ -94,6 +94,7 @@ class VariableFontExporter(object):
 
             m.newGlyph("A")
             g = m['A']
+            g.unicode = 0x0041
             pen = g.getPointPen()
             self.font[name].drawPoints(pen)
             #g.appendGlyph(self.font[name])
@@ -104,6 +105,7 @@ class VariableFontExporter(object):
             
             m.newGlyph("space")
             g = m['space']
+            g.unicode = 0x0020
             g.clearImage()
             g.width = self.font[name].width
             #g.note = "test"

@@ -1,0 +1,67 @@
+body {
+	font-family: "Verdana";
+	font-size: 10pt;
+	color: orange;
+	margin: 0;
+	padding: 0;
+	background-color: black;
+}
+h1{
+	font-family: "LTRCondensedNo3-Grade2";
+	font-size: 40pt;
+	margin-bottom: 10pt;
+	margin-top: 2pt;
+	font-weight: normal;
+}
+h2{
+	font-family: "LTRCondensedNo1-Grade2";
+	font-size: 30pt;
+	margin-bottom: 5pt;
+	font-weight: normal;
+}
+.value{
+	color:white;
+}
+
+#svgcontainer{
+	padding: 0;
+	margin:0;
+	height: 100vh;
+	background-color: none;
+	margin: auto;
+}
+
+
+/*show or hide the reporter*/
+.hideReporter{
+	display: hidden;
+}
+#heyheyhey{
+	display: block;
+	position: fixed;
+	top: 0;
+	width: 50vw;
+	z-index: 1000;
+	margin-left: 50%;
+	font-size: 1em;
+	color: white;
+	background-color: rgba(100, 100, 100, 0.8);
+}
+.control{
+	position: fixed;
+	top: 0;
+	left: 0;
+	color: white;
+	padding: 10px;
+	background-color:black;
+}
+#outline ul{
+	display: table;
+}
+.cmd {
+	display: table-row;
+}
+p.comment{
+	color: white;
+	z-index: 1000;
+}
